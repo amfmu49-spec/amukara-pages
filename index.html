@@ -322,26 +322,27 @@
       .stem-row {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
         padding: 10px 0;
         border-top: 1px solid var(--line);
       }
       .stem-name {
-        flex: 0 0 6.8em;
+        flex: 0 0 4.6em;
         font-weight: 700;
         font-size: 14px;
       }
       .stem-row input[type="range"] { flex: 1; min-width: 0; }
       .stem-vol {
-        flex: 0 0 3.4em;
+        flex: 0 0 3.2em;
         text-align: right;
         font-variant-numeric: tabular-nums;
         font-size: 13px;
         color: var(--ink-sub);
       }
+      .reset-btn,
       .mute-btn {
         flex: 0 0 auto;
-        padding: 7px 10px;
+        padding: 7px 9px;
         border: 1px solid var(--line);
         border-radius: var(--radius);
         background: var(--surface);
@@ -350,6 +351,10 @@
         font-size: 12px;
         font-weight: 700;
         cursor: pointer;
+      }
+      .reset-btn:active {
+        border-color: var(--accent);
+        color: var(--accent);
       }
       .mute-btn[aria-pressed="true"] {
         background: var(--ng);
@@ -457,7 +462,7 @@
         overflow-wrap: break-word;
       }
       @media (max-width: 420px) {
-        .stem-name { flex-basis: 5.6em; font-size: 13px; }
+        .stem-name { flex-basis: 4.2em; font-size: 13px; }
         .status-row dt { flex-basis: 8em; }
       }
     </style>
@@ -1983,6 +1988,12 @@ if (typeof module !== 'undefined') module.exports = MDX;
         volLabel.className = 'stem-vol';
         volLabel.textContent = '100%';
 
+        var reset = document.createElement('button');
+        reset.type = 'button';
+        reset.className = 'reset-btn';
+        reset.textContent = '100%';
+        reset.setAttribute('aria-label', s.label + 'の音量を100%に戻す');
+
         var mute = document.createElement('button');
         mute.type = 'button';
         mute.className = 'mute-btn';
@@ -1995,6 +2006,16 @@ if (typeof module !== 'undefined') module.exports = MDX;
           volLabel.textContent = v + '%';
           applyGain(s.key);
         });
+        reset.addEventListener('click', function () {
+          slider.value = '100';
+          player.vol[s.key] = 1;
+          volLabel.textContent = '100%';
+          if (player.muted[s.key]) {
+            player.muted[s.key] = false;
+            mute.setAttribute('aria-pressed', 'false');
+          }
+          applyGain(s.key);
+        });
         mute.addEventListener('click', function () {
           player.muted[s.key] = !player.muted[s.key];
           mute.setAttribute('aria-pressed', String(player.muted[s.key]));
@@ -2004,6 +2025,7 @@ if (typeof module !== 'undefined') module.exports = MDX;
         row.appendChild(name);
         row.appendChild(slider);
         row.appendChild(volLabel);
+        row.appendChild(reset);
         row.appendChild(mute);
         rowsEl.appendChild(row);
       });
