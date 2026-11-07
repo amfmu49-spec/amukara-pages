@@ -592,9 +592,10 @@
          from the page failed instantly (field report 2026-11-07,
          Safari, model download — see MODEL_URLS), so the page now
          loads nothing at runtime except same-origin files. */
-      var ORT_ALL_URL = 'assets/ort.all.min.mjs';
-      var ORT_WASM_URL = 'assets/ort.wasm.min.mjs';
-      var ORT_WORKER_URL = 'assets/ort-worker.js';
+      var ASSETS_BASE = new URL('./assets/', window.location.href).href;
+      var ORT_ALL_URL = ASSETS_BASE + 'ort.all.min.mjs';
+      var ORT_WASM_URL = ASSETS_BASE + 'ort.wasm.min.mjs';
+      var ORT_WORKER_URL = ASSETS_BASE + 'ort-worker.js';
       /* UVR-MDX-NET-Inst_Main.onnx (52,786,726 bytes, sha256
          8ab401dfe4a548b87deb64f975294bd56ff946aa32903f53b4b24bb13b2cce1e).
          The bytes were verified against the official TRvlvr/model_repo
@@ -1285,6 +1286,7 @@ if (typeof module !== 'undefined') module.exports = MDX;
 
       function tuneOrtEnv(ort) {
         if (ort.env && ort.env.wasm) {
+          ort.env.wasm.wasmPaths = ASSETS_BASE;
           ort.env.wasm.numThreads = window.crossOriginIsolated ? Math.min(4, navigator.hardwareConcurrency || 2) : 1;
         }
       }

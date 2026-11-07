@@ -24,6 +24,7 @@ import * as ort from './ort.wasm.min.mjs';
 if (ort.env && ort.env.wasm) {
   /* The artifact is not cross-origin isolated, so threaded WASM cannot
      run; pin to a single thread explicitly. */
+  ort.env.wasm.wasmPaths = new URL('./', import.meta.url).href;
   ort.env.wasm.numThreads = 1;
 }
 
