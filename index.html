@@ -1,0 +1,2025 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>AMU KARA</title>
+    <style>
+      :root {
+        --bg: #000000;
+        --surface: #ffffff;
+        --ink: #14171c;
+        --ink-sub: #5b626e;
+        --line: #d9dce1;
+        --accent: #2447e0;
+        --accent-ink: #ffffff;
+        --ok: #0e7a3d;
+        --ng: #c2270e;
+        --warn-bg: #fdf0ec;
+        --warn-line: #eec5b8;
+        --track: #e3e6ea;
+        --radius: 6px;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #000000;
+          --surface: #14171c;
+          --ink: #eceef1;
+          --ink-sub: #9aa3af;
+          --line: #2a2f37;
+          --accent: #7d97ff;
+          --accent-ink: #0b0d10;
+          --ok: #4cc97e;
+          --ng: #ff7a5c;
+          --warn-bg: #2a1712;
+          --warn-line: #5a3428;
+          --track: #262b33;
+        }
+      }
+      * { box-sizing: border-box; }
+      html { -webkit-text-size-adjust: 100%; background: #000000; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", -apple-system, BlinkMacSystemFont, sans-serif;
+        font-size: 15px;
+        line-height: 1.6;
+      }
+      main {
+        max-width: 640px;
+        margin: 0 auto;
+        padding: 20px 16px 48px;
+      }
+      .masthead {
+        background: #000;
+        line-height: 0;
+      }
+      .masthead img {
+        display: block;
+        width: 100%;
+        height: auto;
+        max-height: 280px;
+        object-fit: contain;
+        background: #000;
+      }
+      .privacy {
+        color: var(--ink-sub);
+        font-size: 13px;
+        margin: 0 0 20px;
+      }
+      .crash-note {
+        display: none;
+        border: 1px solid var(--warn-line);
+        background: var(--warn-bg);
+        border-radius: var(--radius);
+        padding: 12px 14px;
+        font-size: 13px;
+        margin: 0 0 14px;
+      }
+      .crash-note.show { display: block; }
+      section {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        padding: 16px;
+        margin-bottom: 14px;
+      }
+      section h2 {
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        color: var(--ink-sub);
+        margin: 0 0 12px;
+      }
+      /* ---- status ---- */
+      .status-list { margin: 0; }
+      .status-row {
+        display: flex;
+        gap: 12px;
+        padding: 7px 0;
+        border-top: 1px solid var(--line);
+      }
+      .status-row:first-child { border-top: none; padding-top: 0; }
+      .status-row:last-child { padding-bottom: 0; }
+      .status-row dt {
+        flex: 0 0 9.5em;
+        color: var(--ink-sub);
+        font-size: 13px;
+        padding-top: 1px;
+      }
+      .status-row dd {
+        margin: 0;
+        flex: 1;
+        font-weight: 600;
+        word-break: break-word;
+      }
+      .status-row dd .detail {
+        display: block;
+        font-weight: 400;
+        font-size: 12px;
+        color: var(--ink-sub);
+      }
+      .dot {
+        display: inline-block;
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        background: var(--ink-sub);
+        margin-right: 7px;
+        vertical-align: 1px;
+      }
+      .dot.ok { background: var(--ok); }
+      .dot.ng { background: var(--ng); }
+      /* ---- file ---- */
+      .file-btn {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        padding: 14px;
+        border: 1px dashed var(--line);
+        border-radius: var(--radius);
+        background: transparent;
+        color: var(--ink);
+        font: inherit;
+        font-size: 14px;
+        text-align: left;
+        cursor: pointer;
+      }
+      .file-btn:active { border-color: var(--accent); }
+      .file-btn .fname {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-weight: 600;
+      }
+      .file-btn .fmeta { color: var(--ink-sub); font-size: 12px; white-space: nowrap; }
+      input[type="file"] {
+        position: absolute;
+        width: 1px; height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+      }
+      .seg {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 14px;
+      }
+      .seg label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 11px 12px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        background: var(--surface);
+      }
+      .seg label:has(input:checked) {
+        border-color: var(--accent);
+        box-shadow: inset 0 0 0 1px var(--accent);
+      }
+      .seg input[type="radio"] {
+        width: 18px; height: 18px;
+        margin: 0;
+        accent-color: var(--accent);
+        flex: 0 0 auto;
+      }
+      .seg label:has(input:disabled) { opacity: 0.45; cursor: default; }
+      .seg .sub { font-size: 11px; font-weight: 400; color: var(--ink-sub); margin-left: 6px; }
+      /* ---- run ---- */
+      .run-btn {
+        width: 100%;
+        padding: 16px;
+        border: none;
+        border-radius: var(--radius);
+        background: var(--accent);
+        color: var(--accent-ink);
+        font: inherit;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .run-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+      .run-note { color: var(--ink-sub); font-size: 12px; margin: 10px 0 0; }
+      .progress-area { margin-top: 16px; display: none; }
+      .progress-area.show { display: block; }
+      .stage-line { font-weight: 600; font-size: 14px; margin: 0 0 8px; }
+      .stage-line .elapsed { color: var(--ink-sub); font-weight: 400; font-variant-numeric: tabular-nums; }
+      .bar {
+        height: 8px;
+        background: var(--track);
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 6px;
+      }
+      .bar > div {
+        height: 100%;
+        width: 0%;
+        background: var(--accent);
+        transition: width 0.2s ease;
+      }
+      .bar-label {
+        font-size: 12px;
+        color: var(--ink-sub);
+        font-variant-numeric: tabular-nums;
+        margin: 0 0 12px;
+      }
+      .result-line {
+        display: none;
+        margin-top: 14px;
+        padding: 12px 14px;
+        border: 1px solid var(--ok);
+        border-radius: var(--radius);
+        font-weight: 600;
+        font-size: 14px;
+      }
+      .result-line.show { display: block; }
+      .error-box {
+        display: none;
+        margin-top: 14px;
+        padding: 12px 14px;
+        border: 1px solid var(--warn-line);
+        background: var(--warn-bg);
+        border-radius: var(--radius);
+        font-size: 13px;
+        word-break: break-word;
+      }
+      .error-box.show { display: block; }
+      .error-box .etitle { font-weight: 700; color: var(--ng); display: block; margin-bottom: 4px; }
+      .error-box pre {
+        margin: 6px 0 0;
+        white-space: pre-wrap;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 12px;
+      }
+      /* ---- mixer ---- */
+      #mixer { display: none; }
+      #mixer.show { display: block; }
+      .transport {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 6px;
+      }
+      .play-btn {
+        flex: 0 0 auto;
+        width: 52px; height: 52px;
+        border-radius: 50%;
+        border: none;
+        background: var(--accent);
+        color: var(--accent-ink);
+        font-size: 20px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .time-box { flex: 1; min-width: 0; }
+      .time-label {
+        font-variant-numeric: tabular-nums;
+        font-size: 13px;
+        color: var(--ink-sub);
+        margin-bottom: 2px;
+      }
+      input[type="range"].seek { width: 100%; }
+      input[type="range"] {
+        -webkit-appearance: none;
+        appearance: none;
+        height: 28px;
+        background: transparent;
+        cursor: pointer;
+      }
+      input[type="range"]::-webkit-slider-runnable-track {
+        height: 6px;
+        border-radius: 3px;
+        background: var(--track);
+      }
+      input[type="range"]::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 22px; height: 22px;
+        border-radius: 50%;
+        background: var(--accent);
+        margin-top: -8px;
+        border: 2px solid var(--surface);
+        box-shadow: 0 0 0 1px var(--line);
+      }
+      input[type="range"]::-moz-range-track {
+        height: 6px; border-radius: 3px; background: var(--track);
+      }
+      input[type="range"]::-moz-range-thumb {
+        width: 18px; height: 18px; border-radius: 50%;
+        background: var(--accent); border: 2px solid var(--surface);
+      }
+      .stem-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 0;
+        border-top: 1px solid var(--line);
+      }
+      .stem-name {
+        flex: 0 0 6.8em;
+        font-weight: 700;
+        font-size: 14px;
+      }
+      .stem-row input[type="range"] { flex: 1; min-width: 0; }
+      .stem-vol {
+        flex: 0 0 3.4em;
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+        font-size: 13px;
+        color: var(--ink-sub);
+      }
+      .mute-btn {
+        flex: 0 0 auto;
+        padding: 7px 10px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--surface);
+        color: var(--ink-sub);
+        font: inherit;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .mute-btn[aria-pressed="true"] {
+        background: var(--ng);
+        border-color: var(--ng);
+        color: #fff;
+      }
+      .cache-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid var(--line);
+      }
+      .cache-info {
+        flex: 1;
+        min-width: 180px;
+        font-size: 12px;
+        color: var(--ink-sub);
+        font-variant-numeric: tabular-nums;
+      }
+      .cache-del {
+        flex: 0 0 auto;
+        padding: 7px 10px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--surface);
+        color: var(--ink-sub);
+        font: inherit;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .cache-del:disabled { opacity: 0.45; cursor: default; }
+      .cache-note {
+        display: none;
+        font-size: 12px;
+        color: var(--ink-sub);
+        margin: 6px 0 0;
+      }
+      .cache-note.show { display: block; }
+      /* ---- lyrics (SRT) ---- */
+      textarea.lyrics-input {
+        width: 100%;
+        min-height: 150px;
+        padding: 10px 12px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--surface);
+        color: var(--ink);
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 12.5px;
+        line-height: 1.55;
+        resize: vertical;
+      }
+      textarea.lyrics-input:focus { border-color: var(--accent); outline: 2px solid var(--accent); outline-offset: -1px; }
+      .lyrics-status { font-size: 13px; font-weight: 600; margin: 8px 0 0; }
+      .lyrics-status .bad {
+        display: block;
+        font-weight: 400;
+        font-size: 12px;
+        color: var(--ink-sub);
+      }
+      .lyrics-note { font-size: 12px; color: var(--ink-sub); margin: 6px 0 0; }
+      /* ---- karaoke display ---- */
+      .kara {
+        margin-top: 10px;
+        padding: 14px 2px 12px;
+        border-top: 1px solid var(--line);
+      }
+      /* Fixed-height stage: the current line's slot is always the same
+         size — whether it holds a singing line, the empty message, or
+         nothing at all (interludes) — so the mixer below never shifts.
+         The large line is capped at two visual lines (22px × 1.5 × 2);
+         anything longer is clipped inside the slot, never grows it. */
+      .kara-stage {
+        height: 66px;
+        overflow: hidden;
+      }
+      .kara-empty { font-size: 13px; color: var(--ink-sub); margin: 0; }
+      .kara-current { position: relative; height: 100%; overflow: hidden; }
+      .kara-line {
+        font-size: 22px;
+        font-weight: 700;
+        line-height: 1.5;
+        white-space: pre-wrap;
+        overflow-wrap: break-word;
+      }
+      .kara-line-base { color: var(--ink-sub); opacity: 0.5; }
+      .kara-line-fill {
+        position: absolute;
+        inset: 0;
+        color: var(--accent);
+        clip-path: inset(0 100% 0 0);
+      }
+      .kara-next {
+        margin-top: 6px;
+        height: 39px;
+        overflow: hidden;
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--ink-sub);
+        white-space: pre-wrap;
+        overflow-wrap: break-word;
+      }
+      @media (max-width: 420px) {
+        .stem-name { flex-basis: 5.6em; font-size: 13px; }
+        .status-row dt { flex-basis: 8em; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="masthead">
+      <img src="assets/header.jpg" alt="AMU KARA" />
+    </header>
+    <main>
+      <p class="privacy">処理はすべてこの端末の中で行われます。端末に保存するのはAIモデルだけです。曲のファイルと分離結果は保存も送信もされません（読み込むのは処理用ライブラリとAIモデルだけです）。</p>
+
+      <div class="crash-note" id="crash-note" role="note">
+        <strong>前回の実行について：</strong>GPU（WebGPU）での処理中に画面が再読み込みされたようです。端末のメモリ不足でブラウザ側が終了した可能性が高いため、今回は処理方法をCPU（WASM）に切り替えています。遅くなりますが、こちらは最後まで動きやすい経路です。もう一度GPUで試す場合は、下の「分離」にある処理方法でGPUを選んでください。<span id="crash-detail"></span>
+      </div>
+
+      <section aria-label="端末チェック">
+        <h2>端末チェック</h2>
+        <dl class="status-list">
+          <div class="status-row">
+            <dt>WebGPU</dt>
+            <dd><span class="dot" id="dot-gpu"></span><span id="st-gpu">確認中…</span></dd>
+          </div>
+          <div class="status-row">
+            <dt>分離に使う処理</dt>
+            <dd><span class="dot" id="dot-backend"></span><span id="st-backend">未実行</span><span class="detail" id="st-backend-detail"></span></dd>
+          </div>
+          <div class="status-row">
+            <dt>crossOriginIsolated</dt>
+            <dd><span id="st-coi">確認中…</span></dd>
+          </div>
+          <div class="status-row">
+            <dt>ブラウザ</dt>
+            <dd style="font-weight:400;font-size:12px;color:var(--ink-sub)" id="st-ua">—</dd>
+          </div>
+        </dl>
+      </section>
+
+      <section aria-label="曲の選択">
+        <h2>曲を選ぶ</h2>
+        <label class="file-btn" for="file-input">
+          <span class="fname" id="file-name">MP3などの音声ファイルを選択</span>
+          <span class="fmeta" id="file-meta"></span>
+        </label>
+        <input type="file" id="file-input" accept=".mp3,.m4a,.wav,.aac,.flac,.ogg,.opus,audio/mpeg,audio/mp4,audio/wav,audio/x-wav,audio/aac,audio/flac,audio/ogg" />
+        <div class="seg" role="radiogroup" aria-label="分離する長さ">
+          <label>
+            <input type="radio" name="length" value="30" checked />
+            <span>最初の30秒<span class="sub">テスト用・軽い</span></span>
+          </label>
+          <label>
+            <input type="radio" name="length" value="full" />
+            <span>フル尺<span class="sub">時間とメモリを使う</span></span>
+          </label>
+        </div>
+      </section>
+
+      <section aria-label="分離の実行">
+        <h2>分離</h2>
+        <div class="seg" role="radiogroup" aria-label="処理方法" style="margin-top:0;margin-bottom:14px">
+          <label>
+            <input type="radio" name="backend" value="gpu" checked />
+            <span>GPU（WebGPU）<span class="sub">速いがメモリを多く使う</span></span>
+          </label>
+          <label>
+            <input type="radio" name="backend" value="wasm" />
+            <span>CPU（WASM）<span class="sub">遅いがメモリに優しく、最後まで動きやすい</span></span>
+          </label>
+        </div>
+        <button class="run-btn" id="run-btn" disabled>モデルを読み込んで分離</button>
+        <p class="run-note">AIモデル（約50MB）は初回のみダウンロードし、この端末に保存します。Wi-Fi推奨。2回目以降は保存済みモデルを使うため、ダウンロードは不要です。ただしiOSの都合で保存が自動的に消えた場合は、再度ダウンロードします。</p>
+        <p class="run-note">より小さいモデル（Inst_Main）版です。分けられるのは「ボーカル」と「伴奏」の2つで、ドラムやベース単体には分けられません。このモデルは約17.6kHzより上の音を伴奏として取り出さないため、その帯域の音はボーカル側にそのまま残ります。</p>
+        <div class="cache-row">
+          <span class="cache-info" id="cache-info">保存済みモデル: 確認中…</span>
+          <button type="button" class="cache-del" id="cache-del" disabled>保存したモデルを削除</button>
+        </div>
+        <p class="cache-note" id="cache-note" role="note"></p>
+
+        <div class="progress-area" id="progress-area">
+          <p class="stage-line"><span id="stage-text">準備中…</span> <span class="elapsed" id="elapsed"></span></p>
+          <div class="bar"><div id="dl-bar"></div></div>
+          <p class="bar-label" id="dl-label">モデル: —</p>
+          <div class="bar"><div id="sep-bar"></div></div>
+          <p class="bar-label" id="sep-label">分離: —</p>
+        </div>
+
+        <div class="result-line" id="result-line"></div>
+
+        <div class="error-box" id="error-box">
+          <span class="etitle">エラーが発生しました</span>
+          <span id="error-stage"></span>
+          <pre id="error-text"></pre>
+        </div>
+      </section>
+
+      <section aria-label="歌詞（SRT）">
+        <h2>歌詞（SRT）</h2>
+        <textarea class="lyrics-input" id="lyrics-input" rows="8" spellcheck="false" placeholder="SRT形式の歌詞をここに貼り付け&#10;&#10;1&#10;00:00:05,000 --> 00:00:09,500&#10;歌詞の1行目"></textarea>
+        <p class="lyrics-status" id="lyrics-status" aria-live="polite"></p>
+        <p class="lyrics-note">貼った歌詞はこのページの中だけで使います。保存も送信もしません。ミキサーで再生すると、歌詞が再生位置に合わせて流れます。</p>
+      </section>
+
+      <section id="mixer" aria-label="ミキサー">
+        <h2>ミキサー</h2>
+        <div class="transport">
+          <button class="play-btn" id="play-btn" aria-label="再生">▶</button>
+          <div class="time-box">
+            <div class="time-label"><span id="time-cur">0:00</span> / <span id="time-dur">0:00</span></div>
+            <input type="range" class="seek" id="seek" min="0" max="0" step="0.01" value="0" />
+          </div>
+        </div>
+        <div class="kara" id="kara">
+          <div class="kara-stage">
+            <p class="kara-empty" id="kara-empty">歌詞（SRT）を貼ると、ここにカラオケ表示が出ます。</p>
+            <div class="kara-current" id="kara-current" hidden>
+              <div class="kara-line kara-line-base" id="kara-base"></div>
+              <div class="kara-line kara-line-fill" id="kara-fill" aria-hidden="true"></div>
+            </div>
+          </div>
+          <div class="kara-next" id="kara-next"></div>
+        </div>
+        <div id="stem-rows"></div>
+      </section>
+    </main>
+
+    <script>
+      'use strict';
+
+      /* ONNX Runtime is vendored under assets/ (the exact
+         onnxruntime-web@1.21.0 dist files, byte sizes checked against
+         the npm package) instead of being imported from the jsDelivr
+         CDN: on the publicly shared page every cross-origin request
+         from the page failed instantly (field report 2026-11-07,
+         Safari, model download — see MODEL_URLS), so the page now
+         loads nothing at runtime except same-origin files. */
+      var ORT_ALL_URL = 'assets/ort.all.min.mjs';
+      var ORT_WASM_URL = 'assets/ort.wasm.min.mjs';
+      var ORT_WORKER_URL = 'assets/ort-worker.js';
+      /* UVR-MDX-NET-Inst_Main.onnx (52,786,726 bytes, sha256
+         8ab401dfe4a548b87deb64f975294bd56ff946aa32903f53b4b24bb13b2cce1e).
+         The bytes were verified against the official TRvlvr/model_repo
+         release file (its sha256 also matches the audio-separator
+         model-checksums registry for this filename). Three Hugging Face
+         repos host the byte-identical file (verified: each repo's LFS
+         oid / X-Linked-ETag equals the sha256 above).
+         Field report (2026-11-07): on the publicly shared page opened
+         in Safari, every fetch/XHR to all three HF hosts failed
+         instantly (~0.3s total for all 9 attempts, "Load failed"),
+         while the same URLs answer 200 with correct CORS headers when
+         probed directly — the requests never leave the page there.
+         The model therefore ships inside the artifact
+         (assets/model-inst-main.onnx, hash-verified at build time
+         against MODEL_SHA256) and is tried first as a same-origin
+         fetch; the HF repos remain as fallbacks, each with several
+         transports (see downloadModel). The GitHub release itself is
+         not a candidate: github.com's redirect response carries no
+         Access-Control-Allow-Origin header (measured), so a browser
+         fetch/XHR can never follow it cross-origin.
+         Model params (UVR registry: TRvlvr/application_data
+         mdx_model_data, key 1c56ec0224f1d559c42fd6fd2a67b154; ONNX graph
+         input [batch, 4, 2048, 256] measured on the real file):
+         n_fft=5120, dim_f=2048, dim_t=256, compensate=1.025,
+         primary stem = Instrumental. */
+      var MODEL_URLS = [
+        'assets/model-inst-main.onnx',
+        'https://huggingface.co/AnhP/Vietnamese-RVC-Project/resolve/main/uvr5_models/MDX/UVR-MDX-NET-Inst_Main.onnx',
+        'https://huggingface.co/LeeAeron/uvr_mdx-net/resolve/main/UVR-MDX-NET-Inst_Main.onnx',
+        'https://huggingface.co/lorneluo/uvr5/resolve/main/models/MDX_Net_Models/UVR-MDX-NET-Inst_Main.onnx'
+      ];
+      var MODEL_BYTES = 52786726;
+      var MODEL_SHA256 = '8ab401dfe4a548b87deb64f975294bd56ff946aa32903f53b4b24bb13b2cce1e';
+      var MODEL_NAME = 'UVR-MDX-NET-Inst_Main';
+      /* Model-only on-device cache (IndexedDB). The key binds the model
+         name to its expected SHA-256, so a different/corrupt model can
+         never be served under this key. Only the AI model itself is
+         stored — never the user's audio file or separation results. */
+      var MODEL_CACHE_KEY = MODEL_NAME + ':' + MODEL_SHA256;
+      var MODEL_CACHE_META_KEY = MODEL_CACHE_KEY + ':meta';
+      var MODEL_DB_NAME = 'sutemu-model-cache';
+      var MODEL_STORE = 'models';
+      var TARGET_SR = 44100;
+
+      var STEMS = [
+        { key: 'vocals', label: 'ボーカル' },
+        { key: 'inst',   label: '伴奏' }
+      ];
+
+      function $(id) { return document.getElementById(id); }
+      function fmtTime(sec) {
+        if (!isFinite(sec) || sec < 0) sec = 0;
+        var m = Math.floor(sec / 60);
+        var s = Math.floor(sec % 60);
+        return m + ':' + (s < 10 ? '0' : '') + s;
+      }
+      function fmtMB(bytes) { return (bytes / 1048576).toFixed(1) + ' MB'; }
+
+      /* ---------- capability check ---------- */
+      var gpuInfo = { ok: false, detail: '' };
+
+      /* ---------- crash guard ----------
+         When the OS kills the tab for memory pressure during GPU session
+         creation or the first inference, no JS error fires; the page simply
+         reloads. A session-scoped marker (cleared on the first separation
+         progress callback) lets the reloaded page notice what happened and
+         steer the user to the WASM path instead of crashing in a loop. */
+      var GPU_FLAG_KEY = 'sutemu.gpuAttempt';
+      function markGpuAttempt() {
+        try { sessionStorage.setItem(GPU_FLAG_KEY, '1'); } catch (e) {}
+      }
+      function clearGpuAttempt() {
+        try { sessionStorage.removeItem(GPU_FLAG_KEY); } catch (e) {}
+      }
+      var crashedGpuRun = false;
+      try {
+        if (sessionStorage.getItem(GPU_FLAG_KEY)) {
+          crashedGpuRun = true;
+          sessionStorage.removeItem(GPU_FLAG_KEY);
+        }
+      } catch (e) {}
+
+      /* ---------- GPU crash checkpoints (diagnosis only) ----------
+         The GPU path synchronously records each stage boundary to
+         localStorage as it passes it. localStorage writes survive a hard
+         tab kill (unlike anything kept in memory), so after a crash the
+         last recorded stage names the stage the tab died in. Terminal
+         outcomes (all stages done, a catchable error, or a fallback to
+         CPU) are recorded with finished=true so a normal ending is never
+         misreported as a crash on the next load. This is measurement
+         only: it changes no behavior of the GPU path itself. */
+      var GPU_CKPT_KEY = 'sutemu.gpuCheckpoint';
+      function gpuCheckpoint(stage, finished) {
+        try {
+          localStorage.setItem(GPU_CKPT_KEY, JSON.stringify({
+            stage: stage,
+            at: Date.now(),
+            finished: !!finished
+          }));
+        } catch (e) { /* storage unavailable: diagnosis is best-effort */ }
+      }
+      function readGpuCheckpoint() {
+        try {
+          var raw = localStorage.getItem(GPU_CKPT_KEY);
+          return raw ? JSON.parse(raw) : null;
+        } catch (e) { return null; }
+      }
+      var lastGpuCkpt = readGpuCheckpoint();
+      var gpuDiedMidRun = !!(lastGpuCkpt && !lastGpuCkpt.finished && lastGpuCkpt.stage);
+
+      if (crashedGpuRun || gpuDiedMidRun) {
+        $('crash-note').classList.add('show');
+        var prevWasmRadio = document.querySelector('input[name="backend"][value="wasm"]');
+        if (prevWasmRadio) prevWasmRadio.checked = true;
+        if (gpuDiedMidRun) {
+          var ckptTime = '';
+          try {
+            ckptTime = new Date(lastGpuCkpt.at).toLocaleString('ja-JP', {
+              year: 'numeric', month: 'numeric', day: 'numeric',
+              hour: 'numeric', minute: '2-digit', second: '2-digit'
+            });
+          } catch (e) {}
+          $('crash-detail').textContent =
+            ' 前回GPUは『' + lastGpuCkpt.stage + '』の工程で落ちました' +
+            (ckptTime ? '（最後の記録: ' + ckptTime + '）' : '') + '。';
+        }
+      }
+
+      function disableGpuOption() {
+        var gpuRadio = document.querySelector('input[name="backend"][value="gpu"]');
+        var wasmRadio = document.querySelector('input[name="backend"][value="wasm"]');
+        if (gpuRadio) gpuRadio.disabled = true;
+        if (wasmRadio) wasmRadio.checked = true;
+      }
+
+      async function checkCapabilities() {
+        $('st-ua').textContent = navigator.userAgent || '—';
+        $('st-coi').textContent = String(window.crossOriginIsolated === true);
+
+        if (!('gpu' in navigator) || !navigator.gpu) {
+          gpuInfo.ok = false;
+          gpuInfo.detail = 'navigator.gpu がありません';
+          $('dot-gpu').className = 'dot ng';
+          $('st-gpu').textContent = '利用不可';
+          $('st-backend-detail').textContent = 'WebGPUが使えないため、分離はCPU（WASM）で動きます';
+          disableGpuOption();
+          return;
+        }
+        try {
+          var adapter = await navigator.gpu.requestAdapter();
+          if (!adapter) {
+            gpuInfo.ok = false;
+            gpuInfo.detail = 'アダプターを取得できませんでした';
+            $('dot-gpu').className = 'dot ng';
+            $('st-gpu').textContent = '利用不可（アダプターなし）';
+            $('st-backend-detail').textContent = 'WebGPUが使えないため、分離はCPU（WASM）で動きます';
+            disableGpuOption();
+            return;
+          }
+          var desc = '';
+          try {
+            var info = adapter.info || null;
+            if (!info && adapter.requestAdapterInfo) info = await adapter.requestAdapterInfo();
+            if (info) desc = [info.vendor, info.architecture, info.description].filter(Boolean).join(' / ');
+          } catch (e) { /* adapter info is optional */ }
+          gpuInfo.ok = true;
+          gpuInfo.detail = desc;
+          $('dot-gpu').className = 'dot ok';
+          $('st-gpu').textContent = '利用可能' + (desc ? '' : '');
+          if (desc) {
+            var d = document.createElement('span');
+            d.className = 'detail';
+            d.textContent = desc;
+            $('st-gpu').parentNode.appendChild(d);
+          }
+          if (crashedGpuRun) {
+            $('st-backend-detail').textContent = '前回GPU実行の途中で画面が再読み込みされたため、今回はCPU（WASM）を選択しています';
+          }
+        } catch (e) {
+          gpuInfo.ok = false;
+          gpuInfo.detail = e && e.message ? e.message : String(e);
+          $('dot-gpu').className = 'dot ng';
+          $('st-gpu').textContent = '利用不可（' + gpuInfo.detail + '）';
+          $('st-backend-detail').textContent = 'WebGPUが使えないため、分離はCPU（WASM）で動きます';
+          disableGpuOption();
+        }
+      }
+
+      function setBackend(label, isGpu, detail) {
+        $('dot-backend').className = 'dot ' + (isGpu ? 'ok' : 'ng');
+        $('st-backend').textContent = label;
+        $('st-backend-detail').textContent = detail || '';
+      }
+
+      /* ---------- file selection ---------- */
+      var selectedFile = null;
+      $('file-input').addEventListener('change', function (ev) {
+        var f = ev.target.files && ev.target.files[0];
+        selectedFile = f || null;
+        if (f) {
+          $('file-name').textContent = f.name;
+          $('file-meta').textContent = fmtMB(f.size);
+          $('run-btn').disabled = false;
+        } else {
+          $('file-name').textContent = 'MP3などの音声ファイルを選択';
+          $('file-meta').textContent = '';
+          $('run-btn').disabled = true;
+        }
+      });
+
+      function lengthMode() {
+        var el = document.querySelector('input[name="length"]:checked');
+        return el ? el.value : '30';
+      }
+
+      /* ---------- error / progress UI ---------- */
+      var currentStage = '';
+      function setStage(text) {
+        currentStage = text;
+        $('stage-text').textContent = text;
+      }
+      function showError(err) {
+        var msg = err && err.message ? err.message : String(err);
+        $('error-stage').textContent = currentStage ? '止まった工程: ' + currentStage : '';
+        $('error-text').textContent = msg;
+        $('error-box').classList.add('show');
+      }
+      function hideError() { $('error-box').classList.remove('show'); }
+
+      var elapsedTimer = null;
+      var runStart = 0;
+      function startElapsed() {
+        runStart = performance.now();
+        $('elapsed').textContent = '経過 0.0秒';
+        elapsedTimer = setInterval(function () {
+          $('elapsed').textContent = '経過 ' + ((performance.now() - runStart) / 1000).toFixed(1) + '秒';
+        }, 100);
+      }
+      function stopElapsed() {
+        if (elapsedTimer) { clearInterval(elapsedTimer); elapsedTimer = null; }
+      }
+
+      /* ---------- audio decode ---------- */
+      var decodeCtx = null;
+      function getDecodeCtx() {
+        if (!decodeCtx) {
+          var AC = window.AudioContext || window.webkitAudioContext;
+          decodeCtx = new AC({ sampleRate: TARGET_SR });
+        }
+        if (decodeCtx.state === 'suspended') decodeCtx.resume();
+        return decodeCtx;
+      }
+
+      async function resampleToTarget(buffer) {
+        if (buffer.sampleRate === TARGET_SR) return buffer;
+        var frames = Math.max(1, Math.round(buffer.duration * TARGET_SR));
+        var off = new OfflineAudioContext(2, frames, TARGET_SR);
+        var src = off.createBufferSource();
+        src.buffer = buffer;
+        src.connect(off.destination);
+        src.start();
+        return await off.startRendering();
+      }
+
+      async function decodeFile(file, mode) {
+        var arrayBuf = await file.arrayBuffer();
+        var ctx = getDecodeCtx();
+        var decoded = await ctx.decodeAudioData(arrayBuf);
+        var buf = await resampleToTarget(decoded);
+        var total = buf.length;
+        var useLen = mode === '30' ? Math.min(total, TARGET_SR * 30) : total;
+        var left = buf.getChannelData(0).slice(0, useLen);
+        var right = buf.numberOfChannels > 1
+          ? buf.getChannelData(1).slice(0, useLen)
+          : new Float32Array(left);
+        return { left: left, right: right, seconds: useLen / TARGET_SR };
+      }
+
+      /* ---------- model download ----------
+         Single contiguous buffer, released after the run.
+         Field report (2026-11-07): on iPhone — both the Muse app webview
+         and Safari — the previous single-path fetch() died instantly with
+         "Load failed" (0.3s, no bytes), and the GitHub fallback could never
+         work from a browser at all (its redirect response has no CORS
+         header; measured). The download therefore walks a matrix of
+         3 mirror repos x 3 transports (fetch + stream reader,
+         fetch + arrayBuffer, XMLHttpRequest), verifies the byte length and
+         SHA-256 of whatever arrives, and lists every failed attempt in the
+         thrown error so a failure screenshot shows exactly which leg
+         broke instead of one opaque "Load failed". */
+      function checkModelBuffer(buf) {
+        if (!buf || buf.byteLength !== MODEL_BYTES) {
+          throw new Error('サイズが想定と違います（' + (buf ? buf.byteLength : 0) + 'バイト）');
+        }
+        return buf;
+      }
+      async function verifyModelHash(buf) {
+        if (!window.crypto || !crypto.subtle || !crypto.subtle.digest) return;
+        var digest = await crypto.subtle.digest('SHA-256', buf);
+        var bytes = new Uint8Array(digest);
+        var hex = '';
+        for (var i = 0; i < bytes.length; i++) hex += ('0' + bytes[i].toString(16)).slice(-2);
+        if (hex !== MODEL_SHA256) throw new Error('モデルのハッシュが一致しませんでした');
+      }
+
+      /* ---------- model cache (IndexedDB, model only) ---------- */
+      function openModelDB() {
+        return new Promise(function (resolve, reject) {
+          if (!window.indexedDB) { reject(new Error('IndexedDBが使えません')); return; }
+          var req;
+          try { req = indexedDB.open(MODEL_DB_NAME, 1); } catch (e) { reject(e); return; }
+          req.onupgradeneeded = function () {
+            var db = req.result;
+            if (!db.objectStoreNames.contains(MODEL_STORE)) db.createObjectStore(MODEL_STORE);
+          };
+          req.onsuccess = function () { resolve(req.result); };
+          req.onerror = function () { reject(req.error || new Error('IndexedDBを開けませんでした')); };
+          req.onblocked = function () { reject(new Error('IndexedDBがブロックされました')); };
+        });
+      }
+      function idbTx(db, mode, fn) {
+        return new Promise(function (resolve, reject) {
+          var tx;
+          try { tx = db.transaction(MODEL_STORE, mode); } catch (e) { reject(e); return; }
+          var done = false;
+          tx.oncomplete = function () { if (!done) { done = true; resolve(tx._result); } };
+          tx.onerror = function () { if (!done) { done = true; reject(tx.error || new Error('IndexedDBの処理に失敗しました')); } };
+          tx.onabort = function () { if (!done) { done = true; reject(tx.error || new Error('IndexedDBの処理が中断されました')); } };
+          try { fn(tx.objectStore(MODEL_STORE), tx); } catch (e) {
+            try { tx.abort(); } catch (e2) {}
+            if (!done) { done = true; reject(e); }
+          }
+        });
+      }
+      function idbGet(db, key) {
+        return new Promise(function (resolve, reject) {
+          var req;
+          try {
+            var tx = db.transaction(MODEL_STORE, 'readonly');
+            req = tx.objectStore(MODEL_STORE).get(key);
+          } catch (e) { reject(e); return; }
+          req.onsuccess = function () { resolve(req.result); };
+          req.onerror = function () { reject(req.error || new Error('読み出しに失敗しました')); };
+        });
+      }
+      async function idbDeleteCache(db) {
+        var d = db || await openModelDB();
+        try {
+          await idbTx(d, 'readwrite', function (store, tx) {
+            store.delete(MODEL_CACHE_KEY);
+            store.delete(MODEL_CACHE_META_KEY);
+            tx._result = true;
+          });
+        } finally { if (!db) { try { d.close(); } catch (e) {} } }
+      }
+      /* Read the cached model and verify it with the exact same checks
+         used for a fresh download (size + SHA-256). Returns the verified
+         ArrayBuffer, or null when there is no usable cache (missing,
+         unreadable, size/hash mismatch). A bad entry is removed so it
+         is never trusted on a later run. */
+      async function loadCachedModel() {
+        var db = null;
+        try {
+          db = await openModelDB();
+          var raw = await idbGet(db, MODEL_CACHE_KEY);
+          if (!raw) return null;
+          var buf = raw instanceof ArrayBuffer ? raw
+            : (raw && raw.buffer instanceof ArrayBuffer ? raw.buffer : null);
+          if (!buf) { try { await idbDeleteCache(db); } catch (e) {} return null; }
+          checkModelBuffer(buf);
+          await verifyModelHash(buf);
+          return buf;
+        } catch (e) {
+          if (db) { try { await idbDeleteCache(db); } catch (e2) {} }
+          return null;
+        } finally { if (db) { try { db.close(); } catch (e) {} } }
+      }
+      async function saveCachedModel(buf) {
+        var db = await openModelDB();
+        try {
+          await idbTx(db, 'readwrite', function (store, tx) {
+            store.put(buf, MODEL_CACHE_KEY);
+            store.put({ bytes: buf.byteLength, sha256: MODEL_SHA256, name: MODEL_NAME, savedAt: Date.now() }, MODEL_CACHE_META_KEY);
+            tx._result = true;
+          });
+        } finally { try { db.close(); } catch (e) {} }
+      }
+      function showCacheNote(text) {
+        var el = $('cache-note');
+        if (!el) return;
+        el.textContent = text || '';
+        el.classList.toggle('show', !!text);
+      }
+      async function refreshCacheUI() {
+        var info = $('cache-info');
+        var del = $('cache-del');
+        if (!info) return;
+        var db = null;
+        try {
+          db = await openModelDB();
+          var meta = await idbGet(db, MODEL_CACHE_META_KEY);
+          if (meta && meta.bytes === MODEL_BYTES && meta.sha256 === MODEL_SHA256) {
+            var extra = '';
+            try {
+              if (navigator.storage && navigator.storage.estimate) {
+                var est = await navigator.storage.estimate();
+                if (est && typeof est.usage === 'number') extra = '（このサイトの保存使用量: 約' + fmtMB(est.usage) + '）';
+              }
+            } catch (e) {}
+            info.textContent = '保存済みモデル: ' + fmtMB(meta.bytes) + '（' + MODEL_NAME + '）' + extra;
+            if (del) del.disabled = false;
+            return;
+          }
+          info.textContent = '保存済みモデル: なし（初回はダウンロードします）';
+          if (del) del.disabled = true;
+        } catch (e) {
+          info.textContent = '保存済みモデル: このブラウザでは保存できません';
+          if (del) del.disabled = true;
+        } finally { if (db) { try { db.close(); } catch (e) {} } }
+      }
+
+      async function fetchModelStream(url, onProgress) {
+        var res = await fetch(url);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        var total = parseInt(res.headers.get('Content-Length') || '0', 10);
+        var linked = parseInt(res.headers.get('X-Linked-Size') || '0', 10);
+        if (!total && linked) total = linked;
+        if (!res.body || !res.body.getReader) throw new Error('ストリーム読み取りに未対応です');
+        var reader = res.body.getReader();
+        var chunks = [];
+        var loaded = 0;
+        for (;;) {
+          var part = await reader.read();
+          if (part.done) break;
+          chunks.push(part.value);
+          loaded += part.value.length;
+          onProgress(loaded, total);
+        }
+        var single = new Uint8Array(loaded);
+        var off = 0;
+        for (var i = 0; i < chunks.length; i++) {
+          single.set(chunks[i], off);
+          off += chunks[i].length;
+        }
+        chunks.length = 0;
+        return checkModelBuffer(single.buffer);
+      }
+
+      async function fetchModelBuffer(url, onProgress) {
+        var res = await fetch(url);
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        var buf = await res.arrayBuffer();
+        onProgress(buf.byteLength, buf.byteLength);
+        return checkModelBuffer(buf);
+      }
+
+      function xhrModel(url, onProgress) {
+        return new Promise(function (resolve, reject) {
+          var xhr = new XMLHttpRequest();
+          xhr.open('GET', url, true);
+          xhr.responseType = 'arraybuffer';
+          xhr.onprogress = function (ev) {
+            onProgress(ev.loaded, ev.lengthComputable ? ev.total : 0);
+          };
+          xhr.onload = function () {
+            if (xhr.status >= 200 && xhr.status < 300 && xhr.response) {
+              try { resolve(checkModelBuffer(xhr.response)); }
+              catch (e) { reject(e); }
+            } else {
+              reject(new Error('HTTP ' + xhr.status));
+            }
+          };
+          xhr.onerror = function () { reject(new Error('XHR Load failed')); };
+          xhr.ontimeout = function () { reject(new Error('XHR timeout')); };
+          xhr.send();
+        });
+      }
+
+      var MODEL_TRANSPORTS = [
+        { name: 'fetch(stream)', run: fetchModelStream },
+        { name: 'fetch(buffer)', run: fetchModelBuffer },
+        { name: 'XHR', run: xhrModel }
+      ];
+
+      async function downloadModel(onProgress, onAttempt) {
+        var attempts = [];
+        for (var s = 0; s < MODEL_URLS.length; s++) {
+          for (var t = 0; t < MODEL_TRANSPORTS.length; t++) {
+            var tp = MODEL_TRANSPORTS[t];
+            if (onAttempt) onAttempt(s + 1, MODEL_URLS.length, tp.name);
+            try {
+              var buf = await tp.run(MODEL_URLS[s], onProgress);
+              await verifyModelHash(buf);
+              return buf;
+            } catch (e) {
+              attempts.push('接続先' + (s + 1) + ' / ' + tp.name + ': ' + (e && e.message ? e.message : String(e)));
+              onProgress(0, 0);
+            }
+          }
+        }
+        throw new Error('モデルのダウンロードに失敗しました。試した内訳:\n' + attempts.join('\n'));
+      }
+
+      function selectedBackend() {
+        var el = document.querySelector('input[name="backend"]:checked');
+        return el ? el.value : 'wasm';
+      }
+
+'use strict';
+/* MDX-Net DSP core: STFT/iSTFT (n_fft=5120, hop=1024) + chunked demix.
+   Mirrors audio-separator's MDX pipeline (uvr_lib_v5 STFT + MDXSeparator.demix). */
+var MDX = (function () {
+  var N_FFT = 5120, HOP = 1024, DIM_F = 2048, DIM_T = 256;
+  var TRIM = N_FFT / 2;                    // 2560
+  var CHUNK = HOP * (DIM_T - 1);           // 261120
+  var GEN = CHUNK - 2 * TRIM;              // 256000
+  var OVERLAP = 0.25;
+  var COMPENSATE = 1.025;                  // UVR registry (TRvlvr/application_data mdx_model_data), key 1c56ec0224f1d559c42fd6fd2a67b154
+
+  /* ---- radix-2 FFT ---- */
+  function makeFFT(n) {
+    var rev = new Uint32Array(n), bits = Math.round(Math.log2(n)), i, b;
+    for (i = 0; i < n; i++) { var r = 0, v = i; for (b = 0; b < bits; b++) { r = (r << 1) | (v & 1); v >>= 1; } rev[i] = r; }
+    var cosT = new Float32Array(n / 2), sinT = new Float32Array(n / 2);
+    for (i = 0; i < n / 2; i++) { var a = -2 * Math.PI * i / n; cosT[i] = Math.cos(a); sinT[i] = Math.sin(a); }
+    return function (re, im) {
+      var j, len, half, idx, p, q, tr, ti, uRe, uIm, vRe, vIm, wRe, wIm, step;
+      for (i = 0; i < n; i++) { j = rev[i]; if (j > i) { tr = re[i]; re[i] = re[j]; re[j] = tr; ti = im[i]; im[i] = im[j]; im[j] = ti; } }
+      for (len = 2; len <= n; len <<= 1) {
+        half = len >> 1; step = n / len;
+        for (i = 0; i < n; i += len) for (j = 0; j < half; j++) {
+          idx = j * step; wRe = cosT[idx]; wIm = sinT[idx]; p = i + j; q = p + half;
+          vRe = re[q] * wRe - im[q] * wIm; vIm = re[q] * wIm + im[q] * wRe;
+          uRe = re[p]; uIm = im[p];
+          re[p] = uRe + vRe; im[p] = uIm + vIm; re[q] = uRe - vRe; im[q] = uIm - vIm;
+        }
+      }
+    };
+  }
+  /* ---- mixed-radix FFT for 5120 = 1024 x 5 ---- */
+  var N1 = 1024, N2 = 5, NN = 5120;
+  var fft1024 = makeFFT(N1);
+  var stageRe = [], stageIm = [], s9;
+  for (s9 = 0; s9 < 25; s9++) { stageRe.push(new Float32Array(N1)); stageIm.push(new Float32Array(N1)); }
+  var twRe = [null], twIm = [null], kk;
+  for (kk = 1; kk < 5; kk++) {
+    var cA = new Float32Array(N1), sA = new Float32Array(N1);
+    for (var q1 = 0; q1 < N1; q1++) { var ang = -2 * Math.PI * q1 * kk / NN; cA[q1] = Math.cos(ang); sA[q1] = Math.sin(ang); }
+    twRe.push(cA); twIm.push(sA);
+  }
+  var W5re = [], W5im = [], w5;
+  for (w5 = 0; w5 < 5; w5++) { var a5 = -2 * Math.PI * w5 / 5; W5re.push(Math.cos(a5)); W5im.push(Math.sin(a5)); }
+  function fft5120(re, im) {
+    var n2, k2, n1, k1, idx;
+    for (n2 = 0; n2 < N2; n2++) for (k2 = 0; k2 < N2; k2++) {
+      var aRe = stageRe[n2 * N2 + k2], aIm = stageIm[n2 * N2 + k2];
+      if (k2 === 0) { for (n1 = 0; n1 < N1; n1++) { aRe[n1] = re[n1 + N1 * n2]; aIm[n1] = im[n1 + N1 * n2]; } }
+      else { var cT = twRe[k2], sT = twIm[k2]; for (n1 = 0; n1 < N1; n1++) { var src = n1 + N1 * n2, xr = re[src], xi = im[src], c = cT[n1], sn = sT[n1]; aRe[n1] = xr * c - xi * sn; aIm[n1] = xr * sn + xi * c; } }
+      fft1024(aRe, aIm);
+    }
+    for (k1 = 0; k1 < N1; k1++) for (k2 = 0; k2 < N2; k2++) {
+      var sumRe = 0, sumIm = 0;
+      for (n2 = 0; n2 < N2; n2++) {
+        var aR = stageRe[n2 * N2 + k2][k1], aI = stageIm[n2 * N2 + k2][k1], p = (k2 * n2) % 5, c2 = W5re[p], s2 = W5im[p];
+        sumRe += aR * c2 - aI * s2; sumIm += aR * s2 + aI * c2;
+      }
+      idx = k2 + N2 * k1; re[idx] = sumRe; im[idx] = sumIm;
+    }
+  }
+  function ifft5120(re, im) {
+    var i; for (i = 0; i < NN; i++) im[i] = -im[i];
+    fft5120(re, im);
+    for (i = 0; i < NN; i++) { re[i] /= NN; im[i] = -im[i] / NN; }
+  }
+
+  /* periodic Hann (torch.hann_window periodic=True) */
+  var WIN = new Float32Array(N_FFT);
+  for (var wq = 0; wq < N_FFT; wq++) WIN[wq] = 0.5 - 0.5 * Math.cos(2 * Math.PI * wq / N_FFT);
+
+  var frameRe = new Float32Array(NN), frameIm = new Float32Array(NN);
+  /* STFT of one channel (length CHUNK) into spek layout [ch][bin][frame];
+     writes real part to channel baseCh, imag to baseCh+1. */
+  function stftChannel(x, spek, baseCh) {
+    var t, n, idx, bin;
+    var reBase = baseCh * DIM_F, imBase = (baseCh + 1) * DIM_F;
+    for (t = 0; t < DIM_T; t++) {
+      var start = t * HOP - TRIM;
+      for (n = 0; n < N_FFT; n++) {
+        idx = start + n;
+        if (idx < 0) idx = -idx; else if (idx >= CHUNK) idx = 2 * CHUNK - 2 - idx;
+        frameRe[n] = x[idx] * WIN[n]; frameIm[n] = 0;
+      }
+      fft5120(frameRe, frameIm);
+      for (bin = 0; bin < DIM_F; bin++) {
+        spek[(reBase + bin) * DIM_T + t] = frameRe[bin];
+        spek[(imBase + bin) * DIM_T + t] = frameIm[bin];
+      }
+    }
+    /* zero the first 3 bins like audio-separator run_model */
+    for (var b3 = 0; b3 < 3; b3++) for (t = 0; t < DIM_T; t++) {
+      spek[(reBase + b3) * DIM_T + t] = 0; spek[(imBase + b3) * DIM_T + t] = 0;
+    }
+  }
+  var accOut = new Float32Array(CHUNK), accEnv = new Float32Array(CHUNK);
+  /* iSTFT: reads [baseCh]=real, [baseCh+1]=imag from spek layout, returns Float32Array(CHUNK) */
+  function istftChannel(spek, baseCh, out) {
+    var t, n, bin;
+    var reBase = baseCh * DIM_F, imBase = (baseCh + 1) * DIM_F;
+    accOut.fill(0); accEnv.fill(0);
+    for (t = 0; t < DIM_T; t++) {
+      for (n = 0; n < NN; n++) { frameRe[n] = 0; frameIm[n] = 0; }
+      for (bin = 0; bin < DIM_F; bin++) {
+        frameRe[bin] = spek[(reBase + bin) * DIM_T + t];
+        frameIm[bin] = spek[(imBase + bin) * DIM_T + t];
+      }
+      for (bin = DIM_F + 1; bin < NN; bin++) { frameRe[bin] = frameRe[NN - bin]; frameIm[bin] = -frameIm[NN - bin]; }
+      ifft5120(frameRe, frameIm);
+      var start = t * HOP;
+      for (n = 0; n < N_FFT; n++) {
+        var pos = start + n - TRIM;
+        if (pos < 0 || pos >= CHUNK) continue;
+        var wv = WIN[n];
+        accOut[pos] += frameRe[n] * wv;
+        accEnv[pos] += wv * wv;
+      }
+    }
+    for (n = 0; n < CHUNK; n++) out[n] = accEnv[n] > 1e-10 ? accOut[n] / accEnv[n] : 0;
+    return out;
+  }
+  function hanningSym(m) {
+    var w = new Float32Array(m), i;
+    if (m === 1) { w[0] = 1; return w; }
+    for (i = 0; i < m; i++) w[i] = 0.5 - 0.5 * Math.cos(2 * Math.PI * i / (m - 1));
+    return w;
+  }
+  /* demix: mixL/mixR Float32Array -> instrumental via runModel(spek)->Promise<spekOut>
+     runModel receives Float32Array(4*DIM_F*DIM_T), returns same-shaped data. */
+  async function demix(mixL, mixR, runModel, onProgress) {
+    var L = mixL.length;
+    var pad = GEN + TRIM - (L % GEN);
+    var mixLen = TRIM + L + pad;
+    var step = Math.floor((1 - OVERLAP) * CHUNK);
+    var resL = new Float32Array(mixLen), resR = new Float32Array(mixLen), divider = new Float32Array(mixLen);
+    var waveL = new Float32Array(CHUNK), waveR = new Float32Array(CHUNK);
+    var tarL = new Float32Array(CHUNK), tarR = new Float32Array(CHUNK);
+    var totalChunks = Math.ceil(mixLen / step), done = 0;
+    for (var start = 0; start < mixLen; start += step) {
+      var actual = Math.min(CHUNK, mixLen - start), i, p;
+      for (i = 0; i < CHUNK; i++) {
+        p = start + i - TRIM;
+        waveL[i] = (p >= 0 && p < L) ? mixL[p] : 0;
+        waveR[i] = (p >= 0 && p < L) ? mixR[p] : 0;
+      }
+      var spek = new Float32Array(4 * DIM_F * DIM_T);
+      stftChannel(waveL, spek, 0);
+      stftChannel(waveR, spek, 2);
+      var specOut = await runModel(spek);
+      spek = null;
+      istftChannel(specOut, 0, tarL);
+      istftChannel(specOut, 2, tarR);
+      specOut = null;
+      var window = hanningSym(actual);
+      for (i = 0; i < actual; i++) {
+        var wv = window[i];
+        resL[start + i] += tarL[i] * wv;
+        resR[start + i] += tarR[i] * wv;
+        divider[start + i] += wv;
+      }
+      done++;
+      if (onProgress) onProgress(done / totalChunks, done, totalChunks);
+    }
+    var instL = new Float32Array(L), instR = new Float32Array(L);
+    for (var j = 0; j < L; j++) {
+      var d = divider[TRIM + j];
+      instL[j] = d > 0 ? resL[TRIM + j] / d : 0;
+      instR[j] = d > 0 ? resR[TRIM + j] / d : 0;
+    }
+    return { left: instL, right: instR };
+  }
+  return { demix: demix, stftChannel: stftChannel, istftChannel: istftChannel, fft5120: fft5120,
+           N_FFT: N_FFT, HOP: HOP, DIM_F: DIM_F, DIM_T: DIM_T, CHUNK: CHUNK, COMPENSATE: COMPENSATE };
+})();
+if (typeof module !== 'undefined') module.exports = MDX;
+      /* ---------- separation ---------- */
+      var busy = false;
+      var ortAllRef = null;
+      var ortWasmRef = null;
+
+      function tuneOrtEnv(ort) {
+        if (ort.env && ort.env.wasm) {
+          ort.env.wasm.numThreads = window.crossOriginIsolated ? Math.min(4, navigator.hardwareConcurrency || 2) : 1;
+        }
+      }
+      async function loadOrtAll() {
+        if (!ortAllRef) { ortAllRef = await import(ORT_ALL_URL); tuneOrtEnv(ortAllRef); }
+        return ortAllRef;
+      }
+      async function loadOrtWasm() {
+        if (!ortWasmRef) { ortWasmRef = await import(ORT_WASM_URL); tuneOrtEnv(ortWasmRef); }
+        return ortWasmRef;
+      }
+      /* Let the stage label paint before a main-thread session creation,
+         which can block the UI thread for a while. */
+      function nextPaint() {
+        return new Promise(function (r) { setTimeout(r, 60); });
+      }
+
+      function makeRunModel(session, ort) {
+        var inputName = session.inputNames[0];
+        var outputName = session.outputNames[0];
+        return async function (spek) {
+          var tensor = new ort.Tensor('float32', spek, [1, 4, MDX.DIM_F, MDX.DIM_T]);
+          var feeds = {};
+          feeds[inputName] = tensor;
+          var out = await session.run(feeds);
+          var t = out[outputName];
+          var data = t.data;
+          if (!data && t.getData) data = await t.getData();
+          if (t.dispose) { try { t.dispose(); } catch (e) {} }
+          return data;
+        };
+      }
+
+      /* GPU-only wrapper around a runModel: records a checkpoint before
+         the first segment's inference and after every segment completes
+         (with its number), so a tab kill during inference leaves the
+         exact segment it died on. Behavior is unchanged: it only wraps
+         the inner runner and passes data through. */
+      function wrapGpuRunModel(inner) {
+        var seg = 0;
+        return async function (spek) {
+          if (seg === 0) gpuCheckpoint('区間1の推論 開始');
+          var out = await inner(spek);
+          seg++;
+          gpuCheckpoint('区間' + seg + 'の推論 完了');
+          return out;
+        };
+      }
+
+      async function createSession(providers, modelBuffer, ort) {
+        return await ort.InferenceSession.create(modelBuffer, {
+          executionProviders: providers,
+          /* Low-memory session setup (same as the previous build): no CPU
+             memory arena, no memory-pattern planning, no load-time graph
+             optimization passes. */
+          graphOptimizationLevel: 'disabled',
+          enableCpuMemArena: false,
+          enableMemPattern: false,
+          executionMode: 'sequential'
+        });
+      }
+
+      /* ---------- CPU runner in a Web Worker ----------
+         Field report (2026-11-07, iPhone): on the CPU path the page froze
+         hard at "セッションを作成中…" — the elapsed timer stopped at
+         4.8s, meaning the main thread blocked inside
+         InferenceSession.create (ort.all / JSEP bundle) and never came
+         back. The CPU session therefore now lives in a worker running the
+         WASM-only bundle (data:application/javascript;base64,Lyogb3J0LXdvcmtlci5qcyDigJQgT05OWCBSdW50aW1lIHdvcmtlciBmb3IgdGhlIENQVSAoV0FTTSkgc2VwYXJhdGlvbiBwYXRoLgogKgogKiBGaWVsZCByZXBvcnQgKDIwMjYtMTEtMDcsIGlQaG9uZSwgTXVzZSB3ZWJ2aWV3ICsgU2FmYXJpKTogY3JlYXRpbmcgdGhlCiAqIHNlc3Npb24gb24gdGhlIHBhZ2UncyBtYWluIHRocmVhZCB3aXRoIHRoZSBvcnQuYWxsIChKU0VQKSBidW5kbGUgZnJvemUKICogdGhlIHdob2xlIHBhZ2UgYXQgIuOCu+ODg+OCt+ODp+ODs+OCkuS9nOaIkOS4reKApiIg4oCUIHRoZSBlbGFwc2VkIHRpbWVyIHN0b3BwZWQgYXQKICogNC44cywgaS5lLiB0aGUgbWFpbiB0aHJlYWQgYmxvY2tlZCBpbnNpZGUgSW5mZXJlbmNlU2Vzc2lvbi5jcmVhdGUgYW5kCiAqIG5ldmVyIHJldHVybmVkLiBUaGlzIHdvcmtlciBvd25zIHRoZSBzZXNzaW9uIGluc3RlYWQsIHVzaW5nIHRoZQogKiBXQVNNLW9ubHkgYnVuZGxlLCBzbyB0aGUgcGFnZSBVSSBzdGF5cyBhbGl2ZSB3aGlsZSB0aGUgc2Vzc2lvbiBpcwogKiBjcmVhdGVkIGFuZCBpbmZlcmVuY2UgcnVucy4gVGhlIHBhZ2Ugc3VwZXJ2aXNlcyB0aGlzIHdvcmtlciB3aXRoCiAqIHdhdGNoZG9ncyBhbmQgZmFsbHMgYmFjayB0byBhIG1haW4tdGhyZWFkIHNlc3Npb24gaWYgdGhlIHdvcmtlciBjYW5ub3QKICogc3RhcnQgb3Igc3RvcHMgcmVzcG9uZGluZy4KICoKICogUHJvdG9jb2w6CiAqICAgcGFnZSAtPiB3b3JrZXIgOiB7IHR5cGU6ICdjcmVhdGUnLCBidWZmZXIgfSAgICAgICAgICAgIChtb2RlbCBieXRlcywgdHJhbnNmZXJyZWQpCiAqICAgd29ya2VyIC0+IHBhZ2UgOiB7IHR5cGU6ICdjcmVhdGVkJyB9IHwgeyB0eXBlOiAnY3JlYXRlLWVycm9yJywgbWVzc2FnZSB9CiAqICAgcGFnZSAtPiB3b3JrZXIgOiB7IHR5cGU6ICdydW4nLCBpZCwgYnVmZmVyLCBkaW1zIH0gICAgIChzcGVrIGNodW5rLCB0cmFuc2ZlcnJlZCkKICogICB3b3JrZXIgLT4gcGFnZSA6IHsgdHlwZTogJ3Jlc3VsdCcsIGlkLCBidWZmZXIgfSB8IHsgdHlwZTogJ3J1bi1lcnJvcicsIGlkLCBtZXNzYWdlIH0KICovCi8qIFZlbmRvcmVkIGNvcHkgKGFzc2V0cy9vcnQud2FzbS5taW4ubWpzLCBvbm54cnVudGltZS13ZWJAMS4yMS4wKSDigJQKICAgaW1wb3J0ZWQgcmVsYXRpdmUgdG8gdGhpcyB3b3JrZXIgc28gdGhlIHBhZ2UgbmVlZHMgbm8gY3Jvc3Mtb3JpZ2luCiAgIHJlcXVlc3QgYXQgcnVudGltZSAoc2VlIHRoZSBPUlQgbm90ZSBpbiBpbmRleC5odG1sKS4gKi8KaW1wb3J0ICogYXMgb3J0IGZyb20gJy4vb3J0Lndhc20ubWluLm1qcyc7CgppZiAob3J0LmVudiAmJiBvcnQuZW52Lndhc20pIHsKICAvKiBUaGUgYXJ0aWZhY3QgaXMgbm90IGNyb3NzLW9yaWdpbiBpc29sYXRlZCwgc28gdGhyZWFkZWQgV0FTTSBjYW5ub3QKICAgICBydW47IHBpbiB0byBhIHNpbmdsZSB0aHJlYWQgZXhwbGljaXRseS4gKi8KICBvcnQuZW52Lndhc20ubnVtVGhyZWFkcyA9IDE7Cn0KCnZhciBzZXNzaW9uID0gbnVsbDsKdmFyIGlucHV0TmFtZSA9ICcnOwp2YXIgb3V0cHV0TmFtZSA9ICcnOwoKc2VsZi5vbm1lc3NhZ2UgPSBhc3luYyBmdW5jdGlvbiAoZXYpIHsKICB2YXIgZCA9IGV2LmRhdGEgfHwge307CiAgaWYgKGQudHlwZSA9PT0gJ2NyZWF0ZScpIHsKICAgIHRyeSB7CiAgICAgIHNlc3Npb24gPSBhd2FpdCBvcnQuSW5mZXJlbmNlU2Vzc2lvbi5jcmVhdGUobmV3IFVpbnQ4QXJyYXkoZC5idWZmZXIpLCB7CiAgICAgICAgZXhlY3V0aW9uUHJvdmlkZXJzOiBbJ3dhc20nXSwKICAgICAgICAvKiBTYW1lIGxvdy1tZW1vcnkgc2Vzc2lvbiBzZXR1cCBhcyB0aGUgbWFpbi10aHJlYWQgcGF0aC4gKi8KICAgICAgICBncmFwaE9wdGltaXphdGlvbkxldmVsOiAnZGlzYWJsZWQnLAogICAgICAgIGVuYWJsZUNwdU1lbUFyZW5hOiBmYWxzZSwKICAgICAgICBlbmFibGVNZW1QYXR0ZXJuOiBmYWxzZSwKICAgICAgICBleGVjdXRpb25Nb2RlOiAnc2VxdWVudGlhbCcKICAgICAgfSk7CiAgICAgIGlucHV0TmFtZSA9IHNlc3Npb24uaW5wdXROYW1lc1swXTsKICAgICAgb3V0cHV0TmFtZSA9IHNlc3Npb24ub3V0cHV0TmFtZXNbMF07CiAgICAgIHNlbGYucG9zdE1lc3NhZ2UoeyB0eXBlOiAnY3JlYXRlZCcgfSk7CiAgICB9IGNhdGNoIChlKSB7CiAgICAgIHNlbGYucG9zdE1lc3NhZ2UoewogICAgICAgIHR5cGU6ICdjcmVhdGUtZXJyb3InLAogICAgICAgIG1lc3NhZ2U6IGUgJiYgZS5tZXNzYWdlID8gZS5tZXNzYWdlIDogU3RyaW5nKGUpCiAgICAgIH0pOwogICAgfQogIH0gZWxzZSBpZiAoZC50eXBlID09PSAncnVuJykgewogICAgdHJ5IHsKICAgICAgdmFyIHRlbnNvciA9IG5ldyBvcnQuVGVuc29yKCdmbG9hdDMyJywgbmV3IEZsb2F0MzJBcnJheShkLmJ1ZmZlciksIGQuZGltcyk7CiAgICAgIHZhciBmZWVkcyA9IHt9OwogICAgICBmZWVkc1tpbnB1dE5hbWVdID0gdGVuc29yOwogICAgICB2YXIgb3V0ID0gYXdhaXQgc2Vzc2lvbi5ydW4oZmVlZHMpOwogICAgICB2YXIgdCA9IG91dFtvdXRwdXROYW1lXTsKICAgICAgdmFyIGRhdGEgPSB0LmRhdGE7CiAgICAgIGlmICghZGF0YSAmJiB0LmdldERhdGEpIGRhdGEgPSBhd2FpdCB0LmdldERhdGEoKTsKICAgICAgdmFyIGNvcHkgPSBuZXcgRmxvYXQzMkFycmF5KGRhdGEpOwogICAgICBpZiAodC5kaXNwb3NlKSB7IHRyeSB7IHQuZGlzcG9zZSgpOyB9IGNhdGNoIChlKSB7fSB9CiAgICAgIHNlbGYucG9zdE1lc3NhZ2UoeyB0eXBlOiAncmVzdWx0JywgaWQ6IGQuaWQsIGJ1ZmZlcjogY29weS5idWZmZXIgfSwgW2NvcHkuYnVmZmVyXSk7CiAgICB9IGNhdGNoIChlMikgewogICAgICBzZWxmLnBvc3RNZXNzYWdlKHsKICAgICAgICB0eXBlOiAncnVuLWVycm9yJywKICAgICAgICBpZDogZC5pZCwKICAgICAgICBtZXNzYWdlOiBlMiAmJiBlMi5tZXNzYWdlID8gZTIubWVzc2FnZSA6IFN0cmluZyhlMikKICAgICAgfSk7CiAgICB9CiAgfQp9Owo=): the UI thread stays
+         alive, watchdogs terminate a stuck worker, and any worker failure
+         falls back to a main-thread session exactly as before. */
+      var WORKER_CREATE_TIMEOUT = 120000;
+      var WORKER_RUN_TIMEOUT = 300000;
+
+      function createWorkerRunner(modelBuffer) {
+        return new Promise(function (resolve, reject) {
+          var worker;
+          try {
+            worker = new Worker(ORT_WORKER_URL, { type: 'module' });
+          } catch (e) { reject(e); return; }
+          var settled = false;
+          var dead = false;
+          var pending = {};
+          var nextId = 1;
+
+          function kill(err) {
+            dead = true;
+            try { worker.terminate(); } catch (e) {}
+            Object.keys(pending).forEach(function (k) {
+              var p = pending[k];
+              delete pending[k];
+              if (p.timer) clearTimeout(p.timer);
+              p.reject(err);
+            });
+          }
+          function fail(err) {
+            if (settled) return;
+            settled = true;
+            clearTimeout(createTimer);
+            kill(err);
+            reject(err);
+          }
+          var createTimer = setTimeout(function () {
+            fail(new Error('ワーカースレッドでのセッション作成が' + Math.round(WORKER_CREATE_TIMEOUT / 1000) + '秒以内に終わりませんでした'));
+          }, WORKER_CREATE_TIMEOUT);
+
+          worker.addEventListener('error', function (ev) {
+            var msg = (ev && ev.message) ? ev.message : 'ワーカースレッドを読み込めませんでした';
+            if (!settled) fail(new Error(msg));
+            else kill(new Error(msg));
+          });
+          worker.addEventListener('message', function (ev) {
+            var d = ev.data || {};
+            if (d.type === 'created') {
+              if (!settled) {
+                settled = true;
+                clearTimeout(createTimer);
+                resolve(runner);
+              }
+            } else if (d.type === 'create-error') {
+              fail(new Error(d.message || 'セッション作成に失敗しました'));
+            } else if (d.type === 'result' || d.type === 'run-error') {
+              var p = pending[d.id];
+              if (p) {
+                delete pending[d.id];
+                if (p.timer) clearTimeout(p.timer);
+                if (d.type === 'result') p.resolve(new Float32Array(d.buffer));
+                else p.reject(new Error(d.message || '推論に失敗しました'));
+              }
+            }
+          });
+
+          var runner = {
+            runModel: function (spek) {
+              return new Promise(function (res, rej) {
+                if (dead) { rej(new Error('ワーカースレッドが終了しています')); return; }
+                var id = nextId++;
+                var timer = setTimeout(function () {
+                  if (pending[id]) {
+                    delete pending[id];
+                    kill(new Error('ワーカースレッドの推論がタイムアウトしました'));
+                    rej(new Error('ワーカースレッドの推論が' + Math.round(WORKER_RUN_TIMEOUT / 1000) + '秒以内に終わりませんでした'));
+                  }
+                }, WORKER_RUN_TIMEOUT);
+                pending[id] = { resolve: res, reject: rej, timer: timer };
+                var dims = [1, 4, MDX.DIM_F, MDX.DIM_T];
+                try {
+                  worker.postMessage({ type: 'run', id: id, buffer: spek.buffer, dims: dims }, [spek.buffer]);
+                } catch (e) {
+                  var copy = new Float32Array(spek);
+                  try {
+                    worker.postMessage({ type: 'run', id: id, buffer: copy.buffer, dims: dims }, [copy.buffer]);
+                  } catch (e2) {
+                    delete pending[id];
+                    clearTimeout(timer);
+                    rej(e2);
+                  }
+                }
+              });
+            },
+            dispose: function () { kill(new Error('ワーカースレッドを終了しました')); }
+          };
+
+          /* Send the worker its own copy of the model so the page keeps
+             the original buffer for a possible main-thread fallback. */
+          try {
+            var sendBuf = modelBuffer.slice(0);
+            worker.postMessage({ type: 'create', buffer: sendBuf }, [sendBuf]);
+          } catch (e) {
+            try {
+              worker.postMessage({ type: 'create', buffer: modelBuffer.slice(0) });
+            } catch (e2) { fail(e2); }
+          }
+        });
+      }
+
+      /* CPU runner acquisition: worker first, main-thread session as the
+         fallback when the worker cannot start or create its session. */
+      async function acquireCpuRunModel(modelBuffer) {
+        try {
+          var wr = await createWorkerRunner(modelBuffer);
+          return { runModel: wr.runModel, worker: wr };
+        } catch (workerErr) {
+          var ortW = await loadOrtWasm();
+          await nextPaint();
+          var sess = await createSession(['wasm'], modelBuffer, ortW);
+          return { runModel: makeRunModel(sess, ortW), worker: null };
+        }
+      }
+
+      $('run-btn').addEventListener('click', async function () {
+        if (busy || !selectedFile) return;
+        busy = true;
+        $('run-btn').disabled = true;
+        hideError();
+        $('result-line').classList.remove('show');
+        $('mixer').classList.remove('show');
+        stopPlayback();
+        $('progress-area').classList.add('show');
+        $('dl-bar').style.width = '0%';
+        $('sep-bar').style.width = '0%';
+        $('dl-label').textContent = 'モデル: —';
+        $('sep-label').textContent = '分離: —';
+        startElapsed();
+
+        var modelBuffer = null;
+        try {
+          setStage('音声をデコード中…');
+          var audio = await decodeFile(selectedFile, lengthMode());
+
+          showCacheNote('');
+          setStage('保存済みモデルを確認中…');
+          $('dl-label').textContent = 'モデル: 保存済みを確認中…';
+          modelBuffer = await loadCachedModel();
+          if (modelBuffer) {
+            $('dl-bar').style.width = '100%';
+            $('dl-label').textContent = 'モデル: 保存済みから読み込み（ダウンロードなし）';
+          } else {
+            setStage('モデルをダウンロード中…（約50MB）');
+            modelBuffer = await downloadModel(function (loaded, total) {
+              if (total > 0) {
+                var pct = Math.round(loaded / total * 100);
+                $('dl-bar').style.width = pct + '%';
+                $('dl-label').textContent = 'モデル: ' + pct + '%（' + fmtMB(loaded) + ' / ' + fmtMB(total) + '）';
+              } else if (loaded > 0) {
+                $('dl-label').textContent = 'モデル: ' + fmtMB(loaded) + ' ダウンロード済み';
+              }
+            }, function (idx, count, tname) {
+              $('dl-label').textContent = 'モデル: 接続先' + idx + ' / ' + count + '（' + tname + '）で取得中…';
+            });
+            $('dl-bar').style.width = '100%';
+            $('dl-label').textContent = 'モデル: ダウンロード完了';
+            /* Cache the verified model for next time. A save failure
+               (quota, private mode, …) is not fatal: continue with the
+               downloaded buffer and say so in small print. */
+            try {
+              await saveCachedModel(modelBuffer);
+              refreshCacheUI();
+            } catch (saveErr) {
+              showCacheNote('モデルを端末に保存できませんでした（容量不足など）。今回はダウンロードしたモデルでそのまま実行します。次回は再度ダウンロードします。');
+            }
+          }
+
+          var wantGpu = selectedBackend() === 'gpu' && gpuInfo.ok;
+          var usedGpu = wantGpu;
+          var progressSeen = false;
+          function onSepProgress(frac, done, total) {
+            if (!progressSeen) {
+              progressSeen = true;
+              clearGpuAttempt();
+            }
+            var pct2 = Math.round(frac * 100);
+            $('sep-bar').style.width = pct2 + '%';
+            $('sep-label').textContent = '分離: ' + pct2 + '%（チャンク ' + done + ' / ' + total + '）';
+            if (usedGpu) {
+              setStage('GPU推論中… 区間 ' + done + ' / ' + total + ' 完了');
+            }
+          }
+
+          /* Session acquisition. The CPU session lives in a Web Worker
+             (see createWorkerRunner): creating it on the main thread
+             froze the whole page on iPhone. The GPU session still runs
+             here, guarded by the crash marker as before. */
+          var runModel = null;
+          var cpuWorker = null;
+          var cpuFromWorker = false;
+
+          if (wantGpu) {
+            gpuCheckpoint('GPUセッション作成 開始');
+            setStage('GPU: ライブラリを読み込み中…');
+            var ortAll = await loadOrtAll();
+            setStage('GPU: セッションを作成中…（メモリを使う工程です）');
+            await nextPaint();
+            markGpuAttempt();
+            try {
+              var gpuSession = await createSession(['webgpu', 'wasm'], modelBuffer, ortAll);
+              gpuCheckpoint('GPUセッション作成 完了');
+              runModel = wrapGpuRunModel(makeRunModel(gpuSession, ortAll));
+            } catch (loadErr) {
+              /* GPU session creation failed with a catchable error: fall
+                 through to the CPU runner below with the model buffer we
+                 already downloaded. (A hard tab kill cannot be caught;
+                 the crash guard covers that on the next page load.) */
+              clearGpuAttempt();
+              gpuCheckpoint('GPUセッション作成でエラー → CPUへ切替', true);
+              usedGpu = false;
+              setStage('GPUでセッションを作れなかったため、CPU（WASM）で作り直します…');
+            }
+          }
+          if (!runModel) {
+            setStage('セッションを作成中…（メモリを使う工程です）');
+            var cpu = await acquireCpuRunModel(modelBuffer);
+            runModel = cpu.runModel;
+            cpuWorker = cpu.worker;
+            cpuFromWorker = !!cpu.worker;
+          }
+
+          if (usedGpu) {
+            setBackend('WebGPU', true, 'モデルのセッションをWebGPU優先で作成しました');
+          } else if (wantGpu) {
+            setBackend('CPU（WASM）', false, 'GPUでセッションを作成できなかったため、CPUで処理します');
+          } else {
+            setBackend('CPU（WASM）', false, cpuFromWorker
+              ? 'CPUで処理します（ワーカースレッド使用）。かなり遅くなる見込みです'
+              : 'CPUで処理します。かなり遅くなる見込みです');
+          }
+
+          /* Peak normalization, mirroring audio-separator: if the mix peak
+             exceeds 0.9, scale down before demixing and scale the result
+             back afterwards. */
+          var peak = 0, i;
+          for (i = 0; i < audio.left.length; i++) {
+            var aL = Math.abs(audio.left[i]), aR = Math.abs(audio.right[i]);
+            if (aL > peak) peak = aL;
+            if (aR > peak) peak = aR;
+          }
+          var scale = peak > 0.9 ? 0.9 / peak : 1;
+          if (scale !== 1) {
+            for (i = 0; i < audio.left.length; i++) { audio.left[i] *= scale; audio.right[i] *= scale; }
+          }
+
+          setStage(usedGpu ? 'GPU推論中… 区間1の推論を実行中' : '分離中…');
+          var t0 = performance.now();
+          var inst = null;
+          try {
+            inst = await MDX.demix(audio.left, audio.right, runModel, onSepProgress);
+          } catch (runErr) {
+            if (usedGpu) {
+              /* The GPU session was created but inference failed: rebuild
+                 on WASM and run the whole separation again. */
+              clearGpuAttempt();
+              gpuCheckpoint('GPU推論でエラー → CPUへ切替', true);
+              usedGpu = false;
+              setBackend('CPU（WASM）', false, 'GPUでの推論に失敗したため、CPUで処理します');
+              setStage('GPUでの推論に失敗したため、CPU（WASM）で分離し直します…');
+              $('sep-bar').style.width = '0%';
+              var cpu2 = await acquireCpuRunModel(modelBuffer);
+              runModel = cpu2.runModel;
+              cpuWorker = cpu2.worker;
+              cpuFromWorker = !!cpu2.worker;
+              inst = await MDX.demix(audio.left, audio.right, runModel, onSepProgress);
+            } else if (cpuFromWorker) {
+              /* The worker session died mid-run (watchdog timeout or a
+                 worker error): rebuild the session on the main thread and
+                 run the whole separation once more. */
+              if (cpuWorker) { cpuWorker.dispose(); cpuWorker = null; }
+              cpuFromWorker = false;
+              setStage('ワーカースレッドが応答しなくなったため、この画面で分離し直します…');
+              $('sep-bar').style.width = '0%';
+              var ortW2 = await loadOrtWasm();
+              await nextPaint();
+              var mainSession = await createSession(['wasm'], modelBuffer, ortW2);
+              inst = await MDX.demix(audio.left, audio.right, makeRunModel(mainSession, ortW2), onSepProgress);
+            } else {
+              throw runErr;
+            }
+          }
+          if (cpuWorker) { cpuWorker.dispose(); cpuWorker = null; }
+          var sepSec = (performance.now() - t0) / 1000;
+          modelBuffer = null;
+
+          if (usedGpu) gpuCheckpoint('全区間完了・後処理 開始');
+
+          /* Undo the peak scaling, then vocals = mix - compensate * inst
+             (time-domain subtraction), as in the standard MDX pipeline. */
+          var n = audio.left.length;
+          var vocL = new Float32Array(n), vocR = new Float32Array(n);
+          for (i = 0; i < n; i++) {
+            var iL = inst.left[i] / scale, iR = inst.right[i] / scale;
+            inst.left[i] = iL;
+            inst.right[i] = iR;
+            vocL[i] = audio.left[i] / scale - MDX.COMPENSATE * iL;
+            vocR[i] = audio.right[i] / scale - MDX.COMPENSATE * iR;
+          }
+
+          $('sep-bar').style.width = '100%';
+          setStage('分離が完了しました');
+          var speed = audio.seconds / sepSec;
+          $('result-line').textContent =
+            audio.seconds.toFixed(1) + '秒の音声を ' + sepSec.toFixed(1) + '秒で分離（約' + speed.toFixed(2) + '倍速）／ 使用バックエンド: ' + (usedGpu ? 'WebGPU' : 'CPU（WASM）');
+          $('result-line').classList.add('show');
+
+          buildMixer({
+            vocals: { left: vocL, right: vocR },
+            inst: inst
+          });
+          if (usedGpu) gpuCheckpoint('後処理 完了（全工程完了）', true);
+        } catch (err) {
+          if (wantGpu) gpuCheckpoint('エラーで終了（タブは落ちていない）', true);
+          showError(err);
+          setStage('失敗しました');
+        } finally {
+          modelBuffer = null;
+          stopElapsed();
+          busy = false;
+          $('run-btn').disabled = !selectedFile;
+        }
+      });
+
+      /* ---------- mixer / player ---------- */
+      var player = {
+        ctx: null,
+        buffers: {},
+        gen: 0,
+        gains: {},
+        sources: [],
+        playing: false,
+        startAt: 0,
+        offset: 0,
+        duration: 0,
+        raf: 0,
+        vol: {},
+        muted: {}
+      };
+      STEMS.forEach(function (s) { player.vol[s.key] = 1; player.muted[s.key] = false; });
+
+      function buildMixer(result) {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if (!player.ctx) player.ctx = new AC();
+        if (player.ctx.state === 'suspended') player.ctx.resume();
+        var ctx = player.ctx;
+        player.gen++;
+
+        STEMS.forEach(function (s) {
+          var data = result[s.key];
+          var len = data.left.length;
+          var buf = ctx.createBuffer(2, len, TARGET_SR);
+          buf.getChannelData(0).set(data.left);
+          buf.getChannelData(1).set(data.right);
+          player.buffers[s.key] = buf;
+          if (!player.gains[s.key]) {
+            player.gains[s.key] = ctx.createGain();
+            player.gains[s.key].connect(ctx.destination);
+          }
+          applyGain(s.key);
+        });
+        player.duration = player.buffers[STEMS[0].key].duration;
+        player.offset = 0;
+        player.playing = false;
+        $('play-btn').textContent = '▶';
+        $('time-dur').textContent = fmtTime(player.duration);
+        $('time-cur').textContent = '0:00';
+        karaCurIdx = -2;
+        karaNextIdx = -2;
+        updateKaraoke(0);
+        var seek = $('seek');
+        seek.max = player.duration;
+        seek.value = 0;
+        $('mixer').classList.add('show');
+        $('mixer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      function applyGain(key) {
+        var g = player.gains[key];
+        if (!g) return;
+        var v = player.muted[key] ? 0 : player.vol[key];
+        g.gain.setTargetAtTime(v, player.ctx.currentTime, 0.02);
+      }
+
+      function stopSources() {
+        player.sources.forEach(function (src) {
+          try { src.stop(); } catch (e) {}
+          try { src.disconnect(); } catch (e) {}
+        });
+        player.sources = [];
+      }
+
+      function startPlayback(from) {
+        if (!player.ctx || !player.buffers[STEMS[0].key]) return;
+        if (player.ctx.state === 'suspended') player.ctx.resume();
+        stopSources();
+        if (from >= player.duration) from = 0;
+        var t = player.ctx.currentTime + 0.08;
+        STEMS.forEach(function (s) {
+          var src = player.ctx.createBufferSource();
+          src.buffer = player.buffers[s.key];
+          src.connect(player.gains[s.key]);
+          src.start(t, from);
+          player.sources.push(src);
+        });
+        player.startAt = t;
+        player.offset = from;
+        player.playing = true;
+        $('play-btn').textContent = '❚❚';
+        cancelAnimationFrame(player.raf);
+        player.raf = requestAnimationFrame(tick);
+      }
+
+      function currentPos() {
+        if (!player.playing) return player.offset;
+        return Math.min(player.duration, player.offset + (player.ctx.currentTime - player.startAt));
+      }
+
+      function pausePlayback() {
+        player.offset = currentPos();
+        stopSources();
+        player.playing = false;
+        $('play-btn').textContent = '▶';
+        cancelAnimationFrame(player.raf);
+        updateTimeUI(player.offset);
+        updateKaraoke(player.offset);
+      }
+
+      function stopPlayback() {
+        stopSources();
+        player.playing = false;
+        player.offset = 0;
+        cancelAnimationFrame(player.raf);
+      }
+
+      function updateTimeUI(pos) {
+        $('time-cur').textContent = fmtTime(pos);
+        var seek = $('seek');
+        if (document.activeElement !== seek) seek.value = pos;
+      }
+
+      function tick() {
+        if (!player.playing) return;
+        var pos = currentPos();
+        updateTimeUI(pos);
+        updateKaraoke(pos);
+        if (pos >= player.duration - 0.03) {
+          stopSources();
+          player.playing = false;
+          player.offset = 0;
+          $('play-btn').textContent = '▶';
+          updateTimeUI(0);
+          updateKaraoke(0);
+          return;
+        }
+        player.raf = requestAnimationFrame(tick);
+      }
+
+      $('play-btn').addEventListener('click', function () {
+        if (!player.buffers[STEMS[0].key]) return;
+        if (player.playing) pausePlayback();
+        else startPlayback(player.offset);
+      });
+
+      $('seek').addEventListener('input', function (ev) {
+        var v = parseFloat(ev.target.value);
+        $('time-cur').textContent = fmtTime(v);
+        updateKaraoke(v);
+        if (!player.playing) player.offset = v;
+      });
+      $('seek').addEventListener('change', function (ev) {
+        var v = parseFloat(ev.target.value);
+        updateKaraoke(v);
+        if (player.playing) startPlayback(v);
+        else player.offset = v;
+      });
+
+      /* ---------- lyrics (SRT) / karaoke ----------
+         The pasted lyrics live only in this page's memory: they are
+         never stored (no localStorage / IndexedDB) and never sent
+         anywhere. Parsing accepts standard SRT: an optional index line,
+         blank-line separated blocks, "HH:MM:SS,mmm --> HH:MM:SS,mmm"
+         timestamps ("." as the millisecond separator and a missing
+         hour field are also accepted), and multi-line lyric text joined
+         with newlines. Blocks that cannot be read are counted and
+         reported, never silently merged. */
+      var lyrics = { cues: [], bad: 0 };
+      var karaCurIdx = -2;
+      var karaNextIdx = -2;
+
+      var SRT_TIME_RE = /(?:(\d+):)?(\d{1,2}):(\d{2})[,.](\d{1,3})\s*-->\s*(?:(\d+):)?(\d{1,2}):(\d{2})[,.](\d{1,3})/;
+
+      function srtTime(h, m, s, ms) {
+        var msStr = (String(ms) + '000').slice(0, 3);
+        return parseInt(h || '0', 10) * 3600 + parseInt(m, 10) * 60 +
+               parseInt(s, 10) + parseInt(msStr, 10) / 1000;
+      }
+
+      function parseSRT(text) {
+        var cues = [];
+        var bad = 0;
+        var blocks = String(text || '').replace(/\r\n?/g, '\n').split(/\n[ \t]*\n/);
+        blocks.forEach(function (block) {
+          var trimmed = block.replace(/^\s+|\s+$/g, '');
+          if (!trimmed) return;
+          var lines = trimmed.split('\n');
+          var ti = -1, m = null, i;
+          for (i = 0; i < lines.length; i++) {
+            m = lines[i].match(SRT_TIME_RE);
+            if (m) { ti = i; break; }
+          }
+          if (ti < 0) { bad++; return; }
+          var start = srtTime(m[1], m[2], m[3], m[4]);
+          var end = srtTime(m[5], m[6], m[7], m[8]);
+          var lyricLines = [];
+          for (i = ti + 1; i < lines.length; i++) {
+            var ln = lines[i].replace(/^\s+|\s+$/g, '');
+            if (ln) lyricLines.push(ln);
+          }
+          if (!lyricLines.length || !(end > start)) { bad++; return; }
+          cues.push({ start: start, end: end, text: lyricLines.join('\n') });
+        });
+        cues.sort(function (a, b) { return a.start - b.start; });
+        return { cues: cues, bad: bad };
+      }
+
+      /* Karaoke display, driven by the mixer's existing clock (the same
+         position that drives the seek bar): the cue covering the current
+         position is shown large, its accent layer clipped left-to-right
+         in proportion to (pos - start) / (end - start); the following
+         cue is shown small underneath. In gaps (intros, interludes) no
+         current line is shown and the upcoming cue waits below. */
+      function updateKaraoke(pos) {
+        var cues = lyrics.cues;
+        var emptyEl = $('kara-empty');
+        var curWrap = $('kara-current');
+        var nextEl = $('kara-next');
+        if (!cues.length) {
+          emptyEl.style.display = '';
+          curWrap.hidden = true;
+          nextEl.textContent = '';
+          karaCurIdx = -2;
+          karaNextIdx = -2;
+          return;
+        }
+        emptyEl.style.display = 'none';
+        var cur = -1, next = -1, i;
+        for (i = 0; i < cues.length; i++) {
+          if (pos < cues[i].start) { next = i; break; }
+          if (pos < cues[i].end) {
+            cur = i;
+            next = (i + 1 < cues.length) ? i + 1 : -1;
+            break;
+          }
+        }
+        if (cur !== karaCurIdx) {
+          karaCurIdx = cur;
+          if (cur >= 0) {
+            curWrap.hidden = false;
+            $('kara-base').textContent = cues[cur].text;
+            $('kara-fill').textContent = cues[cur].text;
+          } else {
+            curWrap.hidden = true;
+          }
+        }
+        if (next !== karaNextIdx) {
+          karaNextIdx = next;
+          nextEl.textContent = next >= 0 ? cues[next].text : '';
+        }
+        if (cur >= 0) {
+          var p = (pos - cues[cur].start) / (cues[cur].end - cues[cur].start);
+          if (p < 0) p = 0; else if (p > 1) p = 1;
+          var clip = 'inset(0 ' + ((1 - p) * 100).toFixed(2) + '% 0 0)';
+          var fill = $('kara-fill');
+          fill.style.clipPath = clip;
+          fill.style.webkitClipPath = clip;
+        }
+      }
+
+      $('lyrics-input').addEventListener('input', function () {
+        lyrics = parseSRT($('lyrics-input').value);
+        var st = $('lyrics-status');
+        st.textContent = '';
+        if (lyrics.cues.length) {
+          st.appendChild(document.createTextNode(lyrics.cues.length + '行の歌詞を読み込みました'));
+          if (lyrics.bad > 0) {
+            var b = document.createElement('span');
+            b.className = 'bad';
+            b.textContent = '読み取れなかったブロック: ' + lyrics.bad + '件';
+            st.appendChild(b);
+          }
+        } else if ($('lyrics-input').value.replace(/\s+/g, '')) {
+          st.textContent = '読み取れる歌詞がありませんでした。SRT形式になっているか確認してください。';
+        }
+        karaCurIdx = -2;
+        karaNextIdx = -2;
+        updateKaraoke(player.playing ? currentPos() : player.offset);
+      });
+
+      /* stem rows */
+      var rowsEl = $('stem-rows');
+      STEMS.forEach(function (s) {
+        var row = document.createElement('div');
+        row.className = 'stem-row';
+
+        var name = document.createElement('span');
+        name.className = 'stem-name';
+        name.textContent = s.label;
+
+        var slider = document.createElement('input');
+        slider.type = 'range';
+        slider.min = '0';
+        slider.max = '150';
+        slider.step = '1';
+        slider.value = '100';
+        slider.setAttribute('aria-label', s.label + 'の音量');
+
+        var volLabel = document.createElement('span');
+        volLabel.className = 'stem-vol';
+        volLabel.textContent = '100%';
+
+        var mute = document.createElement('button');
+        mute.type = 'button';
+        mute.className = 'mute-btn';
+        mute.textContent = 'ミュート';
+        mute.setAttribute('aria-pressed', 'false');
+
+        slider.addEventListener('input', function () {
+          var v = parseInt(slider.value, 10);
+          player.vol[s.key] = v / 100;
+          volLabel.textContent = v + '%';
+          applyGain(s.key);
+        });
+        mute.addEventListener('click', function () {
+          player.muted[s.key] = !player.muted[s.key];
+          mute.setAttribute('aria-pressed', String(player.muted[s.key]));
+          applyGain(s.key);
+        });
+
+        row.appendChild(name);
+        row.appendChild(slider);
+        row.appendChild(volLabel);
+        row.appendChild(mute);
+        rowsEl.appendChild(row);
+      });
+
+      $('cache-del').addEventListener('click', async function () {
+        var del = $('cache-del');
+        del.disabled = true;
+        try {
+          await idbDeleteCache(null);
+          showCacheNote('保存したモデルを削除しました。次回は再度ダウンロードします。');
+        } catch (e) {
+          showCacheNote('保存したモデルを削除できませんでした。');
+        }
+        refreshCacheUI();
+      });
+
+      checkCapabilities();
+      refreshCacheUI();
+    </script>
+  </body>
+</html>
