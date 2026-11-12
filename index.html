@@ -261,9 +261,116 @@
         font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
         font-size: 12px;
       }
-      /* ---- mixer ---- */
-      #mixer { display: none; }
-      #mixer.show { display: block; }
+      /* ---- mixer modal & open button ---- */
+      .open-mixer-btn {
+        display: none;
+        width: 100%;
+        margin-top: 12px;
+        padding: 15px;
+        border: none;
+        border-radius: var(--radius);
+        background: var(--ok);
+        color: #ffffff;
+        font: inherit;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .open-mixer-btn.show { display: block; }
+      .modal-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        background: rgba(0, 0, 0, 0.78);
+        align-items: center;
+        justify-content: center;
+        padding: 14px;
+        overflow-y: auto;
+      }
+      .modal-backdrop.show {
+        display: flex;
+      }
+      .modal-card {
+        width: 100%;
+        max-width: 600px;
+        max-height: calc(100dvh - 28px);
+        overflow-y: auto;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 16px;
+        margin: auto;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+      }
+      .modal-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+      .modal-head h2 {
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        color: var(--ink-sub);
+        margin: 0;
+      }
+      .modal-close {
+        flex: 0 0 auto;
+        padding: 6px 12px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--surface);
+        color: var(--ink);
+        font: inherit;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .bg-bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+      .bg-pick-btn {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 9px 12px;
+        border: 1px dashed var(--line);
+        border-radius: var(--radius);
+        background: transparent;
+        color: var(--ink);
+        font: inherit;
+        font-size: 13px;
+        cursor: pointer;
+      }
+      .bg-pick-btn .fname {
+        flex: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-weight: 600;
+      }
+      .bg-clear-btn {
+        flex: 0 0 auto;
+        padding: 9px 10px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--surface);
+        color: var(--ink-sub);
+        font: inherit;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .bg-clear-btn[hidden] { display: none; }
       .transport {
         display: flex;
         align-items: center;
@@ -422,9 +529,54 @@
       .lyrics-note { font-size: 12px; color: var(--ink-sub); margin: 6px 0 0; }
       /* ---- karaoke display ---- */
       .kara {
+        position: relative;
         margin-top: 10px;
         padding: 14px 2px 12px;
         border-top: 1px solid var(--line);
+      }
+      .kara-bg-wrap {
+        display: none;
+      }
+      .kara.has-bg {
+        padding: 0;
+        border-top: none;
+        border-radius: var(--radius);
+        overflow: hidden;
+        background: #000;
+        margin-bottom: 6px;
+      }
+      .kara.has-bg .kara-bg-wrap {
+        display: block;
+        position: relative;
+        width: 100%;
+        height: 260px;
+        overflow: hidden;
+        background: #000;
+      }
+      .kara-bg-blur {
+        position: absolute;
+        inset: -16px;
+        background-position: center;
+        background-size: cover;
+        filter: blur(18px) brightness(0.55);
+        transform: scale(1.08);
+      }
+      .kara-bg-img {
+        position: relative;
+        z-index: 1;
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+      .kara.has-bg .kara-overlay {
+        position: absolute;
+        z-index: 2;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 24px 14px 12px;
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.86) 0%, rgba(0, 0, 0, 0.58) 68%, rgba(0, 0, 0, 0) 100%);
       }
       /* Fixed-height stage: the current line's slot is always the same
          size — whether it holds a singing line, the empty message, or
@@ -436,6 +588,10 @@
         overflow: hidden;
       }
       .kara-empty { font-size: 13px; color: var(--ink-sub); margin: 0; }
+      .kara.has-bg .kara-empty {
+        color: rgba(255, 255, 255, 0.85);
+        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+      }
       .kara-current { position: relative; height: 100%; overflow: hidden; }
       .kara-line {
         font-size: 22px;
@@ -445,11 +601,20 @@
         overflow-wrap: break-word;
       }
       .kara-line-base { color: var(--ink-sub); opacity: 0.5; }
+      .kara.has-bg .kara-line-base {
+        color: rgba(255, 255, 255, 0.55);
+        opacity: 1;
+        text-shadow: 0 2px 6px rgba(0, 0, 0, 0.95);
+      }
       .kara-line-fill {
         position: absolute;
         inset: 0;
         color: var(--accent);
         clip-path: inset(0 100% 0 0);
+      }
+      .kara.has-bg .kara-line-fill {
+        color: #6ee7ff;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95), 0 0 12px rgba(110, 231, 255, 0.45);
       }
       .kara-next {
         margin-top: 6px;
@@ -460,6 +625,10 @@
         color: var(--ink-sub);
         white-space: pre-wrap;
         overflow-wrap: break-word;
+      }
+      .kara.has-bg .kara-next {
+        color: rgba(255, 255, 255, 0.88);
+        text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95);
       }
       @media (max-width: 420px) {
         .stem-name { flex-basis: 4.2em; font-size: 13px; }
@@ -549,6 +718,7 @@
         </div>
 
         <div class="result-line" id="result-line"></div>
+        <button type="button" class="open-mixer-btn" id="open-mixer-btn">▶ プレイヤー・ミキサーを開く</button>
 
         <div class="error-box" id="error-box">
           <span class="etitle">エラーが発生しました</span>
@@ -557,35 +727,64 @@
         </div>
       </section>
 
+      <section aria-label="背景画像">
+        <h2>背景画像（カラオケ背景）</h2>
+        <div class="bg-bar" style="margin-bottom:0">
+          <label class="bg-pick-btn" for="bg-input">
+            <span class="fname" id="bg-name-main">画像を選択（選択すると歌詞が画像の上に重なります）</span>
+          </label>
+          <button type="button" class="bg-clear-btn" id="bg-clear-main" hidden>クリア</button>
+        </div>
+        <input type="file" id="bg-input" accept="image/*" />
+        <p class="lyrics-note">選んだ画像はこの端末の中だけで表示されます。保存も送信もしません。</p>
+      </section>
+
       <section aria-label="歌詞（SRT）">
         <h2>歌詞（SRT）</h2>
         <textarea class="lyrics-input" id="lyrics-input" rows="8" spellcheck="false" placeholder="SRT形式の歌詞をここに貼り付け&#10;&#10;1&#10;00:00:05,000 --> 00:00:09,500&#10;歌詞の1行目"></textarea>
         <p class="lyrics-status" id="lyrics-status" aria-live="polite"></p>
         <p class="lyrics-note">貼った歌詞はこのページの中だけで使います。保存も送信もしません。ミキサーで再生すると、歌詞が再生位置に合わせて流れます。</p>
       </section>
+    </main>
 
-      <section id="mixer" aria-label="ミキサー">
-        <h2>ミキサー</h2>
-        <div class="transport">
+    <div class="modal-backdrop" id="mixer" role="dialog" aria-modal="true" aria-label="プレイヤー・ミキサー">
+      <div class="modal-card">
+        <div class="modal-head">
+          <h2>プレイヤー・ミキサー</h2>
+          <button type="button" class="modal-close" id="close-mixer-btn">✕ 閉じる</button>
+        </div>
+        <div class="bg-bar">
+          <label class="bg-pick-btn" for="bg-input">
+            <span class="fname" id="bg-name-modal">🖼 背景画像を選択</span>
+          </label>
+          <button type="button" class="bg-clear-btn" id="bg-clear-modal" hidden>クリア</button>
+        </div>
+        <div class="kara" id="kara">
+          <div class="kara-bg-wrap">
+            <div class="kara-bg-blur" id="kara-bg-blur"></div>
+            <img class="kara-bg-img" id="kara-bg-img" alt="" />
+          </div>
+          <div class="kara-overlay">
+            <div class="kara-stage">
+              <p class="kara-empty" id="kara-empty">歌詞（SRT）を貼ると、ここにカラオケ表示が出ます。</p>
+              <div class="kara-current" id="kara-current" hidden>
+                <div class="kara-line kara-line-base" id="kara-base"></div>
+                <div class="kara-line kara-line-fill" id="kara-fill" aria-hidden="true"></div>
+              </div>
+            </div>
+            <div class="kara-next" id="kara-next"></div>
+          </div>
+        </div>
+        <div class="transport" style="margin-top:12px">
           <button class="play-btn" id="play-btn" aria-label="再生">▶</button>
           <div class="time-box">
             <div class="time-label"><span id="time-cur">0:00</span> / <span id="time-dur">0:00</span></div>
             <input type="range" class="seek" id="seek" min="0" max="0" step="0.01" value="0" />
           </div>
         </div>
-        <div class="kara" id="kara">
-          <div class="kara-stage">
-            <p class="kara-empty" id="kara-empty">歌詞（SRT）を貼ると、ここにカラオケ表示が出ます。</p>
-            <div class="kara-current" id="kara-current" hidden>
-              <div class="kara-line kara-line-base" id="kara-base"></div>
-              <div class="kara-line kara-line-fill" id="kara-fill" aria-hidden="true"></div>
-            </div>
-          </div>
-          <div class="kara-next" id="kara-next"></div>
-        </div>
         <div id="stem-rows"></div>
-      </section>
-    </main>
+      </div>
+    </div>
 
     <script>
       'use strict';
@@ -1488,7 +1687,8 @@ if (typeof module !== 'undefined') module.exports = MDX;
         $('run-btn').disabled = true;
         hideError();
         $('result-line').classList.remove('show');
-        $('mixer').classList.remove('show');
+        $('open-mixer-btn').classList.remove('show');
+        closeMixerModal();
         stopPlayback();
         $('progress-area').classList.add('show');
         $('dl-bar').style.width = '0%';
@@ -1740,9 +1940,64 @@ if (typeof module !== 'undefined') module.exports = MDX;
         var seek = $('seek');
         seek.max = player.duration;
         seek.value = 0;
-        $('mixer').classList.add('show');
-        $('mixer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        $('open-mixer-btn').classList.add('show');
+        openMixerModal();
       }
+
+      function openMixerModal() {
+        $('mixer').classList.add('show');
+        document.body.style.overflow = 'hidden';
+      }
+      function closeMixerModal() {
+        if (player.playing) pausePlayback();
+        $('mixer').classList.remove('show');
+        document.body.style.overflow = '';
+      }
+      $('open-mixer-btn').addEventListener('click', openMixerModal);
+      $('close-mixer-btn').addEventListener('click', closeMixerModal);
+      $('mixer').addEventListener('click', function (ev) {
+        if (ev.target === $('mixer')) closeMixerModal();
+      });
+      document.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Escape' && $('mixer').classList.contains('show')) closeMixerModal();
+      });
+
+      /* ---------- background image ---------- */
+      var bgObjectUrl = '';
+      function clearBgImage() {
+        if (bgObjectUrl) {
+          try { URL.revokeObjectURL(bgObjectUrl); } catch (e) {}
+          bgObjectUrl = '';
+        }
+        $('bg-input').value = '';
+        $('bg-name-main').textContent = '画像を選択（選択すると歌詞が画像の上に重なります）';
+        $('bg-name-modal').textContent = '🖼 背景画像を選択';
+        $('bg-clear-main').hidden = true;
+        $('bg-clear-modal').hidden = true;
+        $('kara').classList.remove('has-bg');
+        $('kara-bg-img').removeAttribute('src');
+        $('kara-bg-blur').style.backgroundImage = '';
+      }
+      $('bg-input').addEventListener('change', function (ev) {
+        var f = ev.target.files && ev.target.files[0];
+        if (!f) {
+          clearBgImage();
+          return;
+        }
+        if (bgObjectUrl) {
+          try { URL.revokeObjectURL(bgObjectUrl); } catch (e) {}
+        }
+        bgObjectUrl = URL.createObjectURL(f);
+        $('bg-name-main').textContent = '🖼 ' + f.name;
+        $('bg-name-modal').textContent = '🖼 ' + f.name;
+        $('bg-clear-main').hidden = false;
+        $('bg-clear-modal').hidden = false;
+        $('kara-bg-img').src = bgObjectUrl;
+        $('kara-bg-blur').style.backgroundImage = 'url(' + JSON.stringify(bgObjectUrl) + ')';
+        $('kara').classList.add('has-bg');
+      });
+      $('bg-clear-main').addEventListener('click', clearBgImage);
+      $('bg-clear-modal').addEventListener('click', clearBgImage);
 
       function applyGain(key) {
         var g = player.gains[key];
